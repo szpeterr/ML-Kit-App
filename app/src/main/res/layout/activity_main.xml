@@ -8,7 +8,7 @@
     android:background="@color/teal">
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card1"
+        android:id="@+id/camera"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:backgroundTint="@color/lightteal"
@@ -46,7 +46,7 @@
         app:cardCornerRadius="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/card1"
+        app:layout_constraintStart_toEndOf="@+id/camera"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.337">
 
@@ -77,9 +77,9 @@
         android:backgroundTint="@color/lightteal"
         android:background="@drawable/sharp_action_key_24"
         app:cardCornerRadius="16dp"
-        app:layout_constraintEnd_toStartOf="@+id/card4"
+        app:layout_constraintEnd_toStartOf="@+id/config"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/card1">
+        app:layout_constraintTop_toBottomOf="@+id/camera">
 
         <ImageView
             android:layout_width="100dp"
@@ -100,7 +100,7 @@
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card4"
+        android:id="@+id/config"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_marginTop="16dp"
