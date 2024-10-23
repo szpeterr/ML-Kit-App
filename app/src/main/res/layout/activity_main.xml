@@ -26,6 +26,15 @@
             android:scaleType="centerCrop"
             android:src="@drawable/sharp_action_key_24" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Configuration"
+            android:textColor="@android:color/white"
+            android:layout_gravity="center_horizontal"
+            android:paddingLeft="30dp"
+            android:layout_marginTop="120dp"/>
+
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
@@ -49,6 +58,15 @@
             android:backgroundTint="@color/white"
             android:src="@drawable/baseline_account_circle_24" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Face Detection"
+            android:textColor="@android:color/white"
+            android:layout_gravity="center_horizontal"
+            android:paddingLeft="25dp"
+            android:layout_marginTop="120dp"/>
+
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
@@ -70,6 +88,15 @@
             android:scaleType="centerCrop"
             android:src="@drawable/baseline_album_24" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Audio Recording"
+            android:textColor="@android:color/white"
+            android:layout_gravity="center_horizontal"
+            android:paddingLeft="25dp"
+            android:layout_marginTop="120dp"/>
+
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
@@ -90,6 +117,15 @@
             android:layout_gravity="center"
             android:scaleType="centerCrop"
             android:src="@drawable/round_accessibility_24" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Pose Detection"
+            android:paddingLeft="25dp"
+            android:layout_marginTop="120dp"
+            android:textColor="@android:color/white" />
 
     </com.google.android.material.card.MaterialCardView>
 
