@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.play.services.mlkit.subject.segmentation)
     implementation(libs.play.services.mlkit.text.recognition.common)
     implementation(libs.play.services.mlkit.text.recognition.chinese)
+    implementation(libs.firebase.crashlytics.buildtools)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

@@ -19,6 +19,7 @@ segmentationSelfie = "16.0.0-beta6"
 playServicesMlkitSubjectSegmentation = "16.0.0-beta1"
 playServicesMlkitTextRecognitionCommon = "19.1.0"
 playServicesMlkitTextRecognitionChinese = "16.0.1"
+firebaseCrashlyticsBuildtools = "3.0.2"
 
 [libraries]
 face-detection = { module = "com.google.mlkit:face-detection", version.ref = "faceDetection" }
@@ -40,6 +41,7 @@ segmentation-selfie = { group = "com.google.mlkit", name = "segmentation-selfie"
 play-services-mlkit-subject-segmentation = { group = "com.google.android.gms", name = "play-services-mlkit-subject-segmentation", version.ref = "playServicesMlkitSubjectSegmentation" }
 play-services-mlkit-text-recognition-common = { group = "com.google.android.gms", name = "play-services-mlkit-text-recognition-common", version.ref = "playServicesMlkitTextRecognitionCommon" }
 play-services-mlkit-text-recognition-chinese = { group = "com.google.android.gms", name = "play-services-mlkit-text-recognition-chinese", version.ref = "playServicesMlkitTextRecognitionChinese" }
+firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebaseCrashlyticsBuildtools" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

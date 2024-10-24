@@ -18,6 +18,7 @@ package com.google.mlkit.vision.demo.java.posedetector.classification;
 
 import static com.google.common.primitives.Floats.max;
 
+import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.primitives.Floats;
 import com.google.mlkit.vision.common.PointF3D;
 import java.util.List;
 import java.util.ListIterator;
