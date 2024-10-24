@@ -1,6 +1,7 @@
 [versions]
 agp = "8.7.0"
 faceDetection = "16.1.7"
+faceDetectionVersion = "16.1.2"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
@@ -12,6 +13,7 @@ cameraCore = "1.3.4"
 
 [libraries]
 face-detection = { module = "com.google.mlkit:face-detection", version.ref = "faceDetection" }
+face-detection-v1612 = { module = "com.google.mlkit:face-detection", version.ref = "faceDetectionVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

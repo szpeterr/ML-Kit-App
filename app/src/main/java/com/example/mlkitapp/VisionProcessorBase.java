@@ -44,15 +44,15 @@ import com.google.android.odml.image.MediaMlImageBuilder;
 import com.google.android.odml.image.MlImage;
 import com.google.mlkit.common.MlKitException;
 import com.google.mlkit.vision.common.InputImage;
-import demo.BitmapUtils;
-import demo.CameraImageGraphic;
-import demo.FrameMetadata;
-import demo.GraphicOverlay;
-import demo.InferenceInfoGraphic;
-import demo.ScopedExecutor;
-import demo.TemperatureMonitor;
-import demo.VisionImageProcessor;
-import demo.preference.PreferenceUtils;
+import com.google.mlkit.vision.demo.BitmapUtils;
+import com.google.mlkit.vision.demo.CameraImageGraphic;
+import com.google.mlkit.vision.demo.FrameMetadata;
+import com.google.mlkit.vision.demo.GraphicOverlay;
+import com.google.mlkit.vision.demo.InferenceInfoGraphic;
+import com.google.mlkit.vision.demo.ScopedExecutor;
+import com.google.mlkit.vision.demo.TemperatureMonitor;
+import com.google.mlkit.vision.demo.VisionImageProcessor;
+import com.google.mlkit.vision.demo.preference.PreferenceUtils;
 
 import java.nio.ByteBuffer;
 import java.util.Timer;
@@ -107,7 +107,7 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
   protected VisionProcessorBase(Context context) {
     activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
     executor = new ScopedExecutor(TaskExecutors.MAIN_THREAD);
-    fpsTimer.schedule(
+    fpsTimer.scheduleAtFixedRate(
         new TimerTask() {
           @Override
           public void run() {
