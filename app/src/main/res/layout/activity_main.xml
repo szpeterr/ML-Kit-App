@@ -58,7 +58,6 @@
         android:layout_marginTop="16dp"
         android:background="@drawable/sharp_action_key_24"
         android:backgroundTint="@color/lightteal"
-        android:onClick="openInstrumentActivity"
         app:cardCornerRadius="16dp"
         app:layout_constraintEnd_toStartOf="@+id/cardPoseDetection"
         app:layout_constraintStart_toStartOf="parent"
