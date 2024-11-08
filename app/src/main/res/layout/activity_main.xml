@@ -8,7 +8,7 @@
     android:background="@color/teal">
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardObjectDetection"
+        android:id="@+id/cardSettings"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:backgroundTint="@color/lightteal"
@@ -37,7 +37,7 @@
         app:cardCornerRadius="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/cardObjectDetection"
+        app:layout_constraintStart_toEndOf="@+id/cardSettings"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.337">
 
@@ -52,16 +52,17 @@
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardMusicDetection"
+        android:id="@+id/cardMusic"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_marginTop="16dp"
-        android:backgroundTint="@color/lightteal"
         android:background="@drawable/sharp_action_key_24"
+        android:backgroundTint="@color/lightteal"
+        android:onClick="openInstrumentActivity"
         app:cardCornerRadius="16dp"
         app:layout_constraintEnd_toStartOf="@+id/cardPoseDetection"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardObjectDetection">
+        app:layout_constraintTop_toBottomOf="@+id/cardSettings">
 
         <ImageView
             android:layout_width="100dp"
@@ -81,7 +82,7 @@
         android:background="@drawable/sharp_action_key_24"
         app:cardCornerRadius="16dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/cardMusicDetection"
+        app:layout_constraintStart_toEndOf="@+id/cardMusic"
         app:layout_constraintTop_toBottomOf="@+id/cardFaceDetection">
 
         <ImageView

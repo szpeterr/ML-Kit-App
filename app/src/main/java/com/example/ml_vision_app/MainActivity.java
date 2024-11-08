@@ -2,6 +2,7 @@ package com.example.ml_vision_app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +15,9 @@ import com.google.android.material.card.MaterialCardView;
 public class MainActivity extends AppCompatActivity {
     MaterialCardView cardFaceDetection;
     MaterialCardView cardPoseDetection;
+    MaterialCardView cardMusic;
+    //MaterialCardView cardSettings;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
         });
         cardFaceDetection = findViewById(R.id.cardFaceDetection);
         cardPoseDetection = findViewById(R.id.cardPoseDetection);
+        cardMusic = findViewById(R.id.cardMusic);
 
         cardFaceDetection.setOnClickListener(v -> {
             Intent myIntent = new Intent(MainActivity.this, FaceDetectionActivity.class);
@@ -33,6 +38,10 @@ public class MainActivity extends AppCompatActivity {
         });
         cardPoseDetection.setOnClickListener(v -> {
             Intent myIntent = new Intent(MainActivity.this, PoseDetectionActivity.class);
+            startActivity(myIntent);
+        });
+        cardMusic.setOnClickListener(v -> {
+            Intent myIntent = new Intent(MainActivity.this, InstrumentActivity.class);
             startActivity(myIntent);
         });
     }
