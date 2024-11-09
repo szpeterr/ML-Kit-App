@@ -9,6 +9,7 @@ public class PoseGraphic extends GraphicOverlay.Graphic {
     private final Pose pose;
     private final Paint circlePaint;
     private final Paint linePaint;
+    private static float rightIndexY;
 
     public PoseGraphic(GraphicOverlay overlay, Pose pose) {
         super(overlay);
@@ -34,6 +35,10 @@ public class PoseGraphic extends GraphicOverlay.Graphic {
             float x = landmark.getPosition().x;
             float y = landmark.getPosition().y;
             canvas.drawCircle(x, y, 8f, circlePaint);
+            if (landmark.getLandmarkType() == PoseLandmark.RIGHT_INDEX) {
+                rightIndexY = y;
+            }
+            //checkForSoundStart();
         }
 
         // Draw connections between keypoints
@@ -49,6 +54,10 @@ public class PoseGraphic extends GraphicOverlay.Graphic {
             canvas.drawLine(start.getPosition().x, start.getPosition().y,
                     end.getPosition().x, end.getPosition().y, linePaint);
         }
+    }
+
+    public static float getRightIndexY() {
+        return rightIndexY;
     }
 }
 
