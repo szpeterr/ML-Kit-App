@@ -1,12 +1,13 @@
 package com.example.ml_vision_app;
 
+import static com.example.ml_vision_app.SoundGenerator.isFrequencyPlaying;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.media.Image;
 import android.os.Bundle;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
@@ -17,9 +18,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LifecycleOwner;
 
 import android.util.Size;
@@ -41,6 +39,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
     private PreviewView previewView;
     private GraphicOverlay graphicOverlay;
     private PoseDetector poseDetector;
+    //private boolean isPlaying = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +71,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
             try {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
                 cameraProvider.unbindAll();
-                cameraProvider.bindToLifecycle((LifecycleOwner) this, CameraSelector.DEFAULT_BACK_CAMERA, createPreview(), createImageAnalysis());
+                cameraProvider.bindToLifecycle(this, CameraSelector.DEFAULT_BACK_CAMERA, createPreview(), createImageAnalysis());
             } catch (ExecutionException | InterruptedException e) {
                 e.printStackTrace();
                 Toast.makeText(this, "Error starting camera: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -118,6 +117,17 @@ public class PoseDetectionActivity extends AppCompatActivity {
         graphicOverlay.clear();
         graphicOverlay.add(new PoseGraphic(graphicOverlay, pose));
         graphicOverlay.invalidate(); // Redraw the overlay
+        checkForFrequencyStart();
+    }
+
+    private void checkForFrequencyStart() {
+        int playThreshold = 1000;
+        if (PoseGraphic.getRightIndexY() > playThreshold) {
+            if (!isFrequencyPlaying) {
+                SoundGenerator.playFrequency();
+                isFrequencyPlaying = true;
+            }
+        }
     }
 
     @Override
@@ -125,6 +135,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
         super.onDestroy();
         if (poseDetector != null) {
             poseDetector.close();
+            SoundGenerator.stopFrequency();
         }
     }
 
