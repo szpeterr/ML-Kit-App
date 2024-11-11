@@ -62,5 +62,5 @@ public class MainActivity extends AppCompatActivity {
             calibrationOffsetX = data.getFloatExtra("calibrationOffsetX", 0);
             calibrationOffsetY = data.getFloatExtra("calibrationOffsetY", 0);
         }
-
+    }
 }
