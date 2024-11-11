@@ -4,11 +4,11 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-11-11T18:51:34.980557800Z">
+        <DropdownSelection timestamp="2024-11-09T15:41:07.894714Z">
           <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=R58RB4ALS1X" />
-            </handle>
+            <template>
+              <DeviceId pluginId="FirebaseDirectAccess" type="TEMPLATE" identifier="model_id=shiba/34" />
+            </template>
           </Target>
         </DropdownSelection>
         <DialogSelection />

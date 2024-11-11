@@ -7,50 +7,73 @@
     android:layout_height="match_parent"
     android:background="@color/teal">
 
-    <ImageButton
-        android:id="@+id/PoseDetection"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardSettings"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:backgroundTint="@color/lightteal"
         app:cardCornerRadius="16dp"
-        android:background="@drawable/round_accessibility_24"
-        android:text="Pose Detection"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/FaceDetection"
+        app:layout_constraintEnd_toStartOf="@+id/cardFaceDetection"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.337">
-    </ImageButton>
 
-    <ImageButton
-        android:id="@+id/FaceDetection"
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/sharp_action_key_24" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardFaceDetection"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:backgroundTint="@color/lightteal"
-        android:background="@drawable/baseline_account_circle_24"
+        android:background="@drawable/sharp_action_key_24"
         app:cardCornerRadius="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/PoseDetection"
+        app:layout_constraintStart_toEndOf="@+id/cardSettings"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.337">
-    </ImageButton>
 
-    <ImageButton
-        android:id="@+id/MusicDetection"
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:backgroundTint="@color/white"
+            android:src="@drawable/baseline_account_circle_24" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardMusic"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_marginTop="16dp"
+        android:background="@drawable/sharp_action_key_24"
         android:backgroundTint="@color/lightteal"
-        android:background="@drawable/baseline_album_24"
         app:cardCornerRadius="16dp"
-        app:layout_constraintEnd_toStartOf="@+id/Calibration"
+        app:layout_constraintEnd_toStartOf="@+id/cardPoseDetection"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/PoseDetection">
-    </ImageButton>
+        app:layout_constraintTop_toBottomOf="@+id/cardSettings">
 
-    <ImageButton
-        android:id="@+id/Calibration"
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/baseline_album_24" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardPoseDetection"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_marginTop="16dp"
@@ -58,8 +81,16 @@
         android:background="@drawable/sharp_action_key_24"
         app:cardCornerRadius="16dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/MusicDetection"
-        app:layout_constraintTop_toBottomOf="@+id/FaceDetection">
-    </ImageButton>
+        app:layout_constraintStart_toEndOf="@+id/cardMusic"
+        app:layout_constraintTop_toBottomOf="@+id/cardFaceDetection">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/round_accessibility_24" />
+
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
