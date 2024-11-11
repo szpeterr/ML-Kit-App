@@ -19,6 +19,7 @@ public class GraphicOverlay extends View {
     // Adds a new graphic to be drawn
     public void add(Graphic graphic) {
         graphics.add(graphic);
+        invalidate();
     }
 
     // Clears all graphics
@@ -43,7 +44,20 @@ public class GraphicOverlay extends View {
             this.overlay = overlay;
         }
 
+        // Translate x coordinate
+        protected float translateX(float x) {
+            // Scale the x coordinate based on the overlay's width
+            return x * overlay.getWidth() / overlay.getWidth();
+        }
+
+        // Translate y coordinate
+        protected float translateY(float y) {
+            // Scale the y coordinate based on the overlay's height
+            return y * overlay.getHeight() / overlay.getHeight();
+        }
+
         public abstract void draw(Canvas canvas);
     }
 }
+
 
