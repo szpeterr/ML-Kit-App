@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     public ImageButton MusicDet;
     public ImageButton Calibration;
 
-    private static final int CALIBRATION_REQUEST_CODE = 1001;
+    public static final int CALIBRATION_REQUEST_CODE = 1001;
     private float calibrationOffsetX = 0;
     private float calibrationOffsetY = 0;
     // Start CalibrationActivity
@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
             Intent myIntent = new Intent(MainActivity.this, PoseDetectionActivity.class);
             startActivity(myIntent);
         });
+
+        Calibration.setOnClickListener(v -> startCalibration());
 
     }
     @Override

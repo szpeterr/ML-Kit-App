@@ -57,8 +57,6 @@ public class PoseGraphic extends GraphicOverlay.Graphic {
         drawLine(canvas, PoseLandmark.RIGHT_KNEE, PoseLandmark.RIGHT_ANKLE);
         drawLine(canvas, PoseLandmark.LEFT_SHOULDER, PoseLandmark.LEFT_HIP);
         drawLine(canvas, PoseLandmark.RIGHT_SHOULDER, PoseLandmark.RIGHT_HIP);
-        drawLine(canvas, PoseLandmark.LEFT_SHOULDER, PoseLandmark.LEFT_EAR);
-        drawLine(canvas, PoseLandmark.RIGHT_SHOULDER, PoseLandmark.RIGHT_EAR);
     }
 
     private void drawLine(Canvas canvas, int startLandmark, int endLandmark) {

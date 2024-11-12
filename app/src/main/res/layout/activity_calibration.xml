@@ -11,7 +11,9 @@
     <com.example.ml_vision_app.GraphicOverlay
         android:id="@+id/graphic_overlay"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_alignTop="@id/camera_preview"
+        android:layout_alignBottom="@id/camera_preview"/>
 
     <Button
         android:id="@+id/complete_calibration_button"
@@ -21,7 +23,7 @@
         android:visibility="gone"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:marginBottom="24dp"/>
+        android:layout_marginBottom="24dp"/>
 
     <ImageButton
         android:id="@+id/switch_camera_button"

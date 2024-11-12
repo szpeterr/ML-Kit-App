@@ -11,8 +11,8 @@ import java.util.List;
 public class GraphicOverlay extends View {
 
     private final List<Graphic> graphics = new ArrayList<>();
-    private float offsetX = 0f;
-    private float offsetY = 0f;
+    private static float offsetX = 0;
+    private static float offsetY = 0;
 
     public GraphicOverlay(Context context, AttributeSet attrs) {
         super(context, attrs);

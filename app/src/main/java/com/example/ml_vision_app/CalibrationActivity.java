@@ -27,6 +27,7 @@ import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
+import com.google.mlkit.vision.pose.PoseLandmark;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 
 import java.util.concurrent.ExecutionException;
@@ -41,7 +42,20 @@ public class CalibrationActivity extends AppCompatActivity {
     private float calibrationOffsetX = 0f;
     private float calibrationOffsetY = 0f;
     private boolean calibrationComplete = false;
-    private CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA; // Start with back camera
+    private CameraSelector cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA; // Start with back camera
+
+    private float calculateOffsetX(Pose pose) {
+        PoseLandmark nose = pose.getPoseLandmark(PoseLandmark.NOSE);
+        float expectedCenterX = graphicOverlay.getWidth() / 2f; // Center X of overlay
+        return nose != null ? (expectedCenterX - nose.getPosition().x) : 0f;
+    }
+
+    private float calculateOffsetY(Pose pose) {
+        PoseLandmark nose = pose.getPoseLandmark(PoseLandmark.NOSE);
+        float expectedCenterY = graphicOverlay.getHeight() / 2f; // Center Y of overlay
+        return nose != null ? (expectedCenterY - nose.getPosition().y) : 0f;
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,33 +123,39 @@ public class CalibrationActivity extends AppCompatActivity {
         if (mediaImage != null) {
             InputImage image = InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
             poseDetector.process(image)
-                    .addOnSuccessListener(this::calibratePose)
+                    .addOnSuccessListener(pose -> {
+                        calibratePose(pose);   // Run calibration logic
+                        drawPose(pose);        // Draw the skeleton overlay
+                    })
                     .addOnFailureListener(Throwable::printStackTrace)
                     .addOnCompleteListener(task -> imageProxy.close());
         }
+    }
+
+    private void drawPose(Pose pose) {
+        graphicOverlay.clear();
+        graphicOverlay.add(
+                new PoseGraphic(graphicOverlay, pose, graphicOverlay.getOffsetX(), graphicOverlay.getOffsetY()));
+        graphicOverlay.invalidate(); // Redraw the overlay
     }
 
     private void calibratePose(Pose pose) {
         if (isStarPose(pose)) {
             calibrationOffsetX = calculateOffsetX(pose);
             calibrationOffsetY = calculateOffsetY(pose);
+
+            // Apply offsets to GraphicOverlay
             graphicOverlay.setOffsets(calibrationOffsetX, calibrationOffsetY);
             calibrationComplete = true;
             completeCalibrationButton.setVisibility(View.VISIBLE);
         }
     }
 
+
     private boolean isStarPose(Pose pose) {
         return true; // Placeholder
     }
 
-    private float calculateOffsetX(Pose pose) {
-        return 0f; // Placeholder
-    }
-
-    private float calculateOffsetY(Pose pose) {
-        return 0f; // Placeholder
-    }
 
     private void finishCalibration() {
         if (calibrationComplete) {
@@ -146,6 +166,7 @@ public class CalibrationActivity extends AppCompatActivity {
             finish();
         }
     }
+
 
     @Override
     protected void onDestroy() {
