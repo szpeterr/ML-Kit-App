@@ -11,9 +11,27 @@ import java.util.List;
 public class GraphicOverlay extends View {
 
     private final List<Graphic> graphics = new ArrayList<>();
+    private float offsetX = 0f;
+    private float offsetY = 0f;
 
     public GraphicOverlay(Context context, AttributeSet attrs) {
         super(context, attrs);
+    }
+
+    // Method to set offsets for calibration
+    public void setOffsets(float offsetX, float offsetY) {
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
+        invalidate(); // Redraw to apply offsets
+    }
+
+    // Getters for offsets (if needed by other classes)
+    public float getOffsetX() {
+        return offsetX;
+    }
+
+    public float getOffsetY() {
+        return offsetY;
     }
 
     // Adds a new graphic to be drawn

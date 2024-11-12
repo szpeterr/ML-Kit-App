@@ -36,6 +36,7 @@ public class PoseGraphic extends GraphicOverlay.Graphic {
 
     @Override
     public void draw(Canvas canvas) {
+
         // Draw keypoints as circles, applying the calibration offset to each point
         for (PoseLandmark landmark : pose.getAllPoseLandmarks()) {
             float x = landmark.getPosition().x + offsetX;
