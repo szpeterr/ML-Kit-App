@@ -1,5 +1,7 @@
 package com.example.ml_vision_app;
 
+import static com.example.ml_vision_app.SoundGenerator.isFrequencyPlaying;
+
 import static com.example.ml_vision_app.MainActivity.CALIBRATION_REQUEST_CODE;
 
 import android.Manifest;
@@ -22,6 +24,13 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.LifecycleOwner;
+
+import android.util.Size;
+import android.widget.Toast;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
@@ -32,11 +41,13 @@ import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 
 import java.util.concurrent.ExecutionException;
 
+
 public class PoseDetectionActivity extends AppCompatActivity {
 
     private PreviewView previewView;
     private GraphicOverlay graphicOverlay;
     private PoseDetector poseDetector;
+    //private boolean isPlaying = false;
     private ImageButton switchCameraButton;
     private CameraSelector cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA;
     private float calibrationOffsetX = 0f;
@@ -92,16 +103,19 @@ public class PoseDetectionActivity extends AppCompatActivity {
                 cameraProvider.bindToLifecycle(this, cameraSelector, createPreview(), createImageAnalysis());
             } catch (ExecutionException | InterruptedException e) {
                 e.printStackTrace();
+                Toast.makeText(this, "Error starting camera: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }, ContextCompat.getMainExecutor(this));
     }
 
+    // Create camera preview
     private Preview createPreview() {
         Preview preview = new Preview.Builder().build();
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
         return preview;
     }
 
+    // Create image analysis for pose detection
     private ImageAnalysis createImageAnalysis() {
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
                 .setTargetResolution(new Size(1280, 720))
@@ -112,12 +126,14 @@ public class PoseDetectionActivity extends AppCompatActivity {
         return imageAnalysis;
     }
 
+    // Analyze each frame for pose detection
     private void analyzeImage(@NonNull ImageProxy imageProxy) {
         @SuppressLint("UnsafeOptInUsageError")
         Image mediaImage = imageProxy.getImage();
         if (mediaImage != null) {
             InputImage image = InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
 
+            // Process the image for pose detection
             poseDetector.process(image)
                     .addOnSuccessListener(this::drawPose)
                     .addOnFailureListener(e -> e.printStackTrace())
@@ -125,11 +141,23 @@ public class PoseDetectionActivity extends AppCompatActivity {
         }
     }
 
+    // Draw the pose on the overlay
     private void drawPose(Pose pose) {
         graphicOverlay.clear();
         graphicOverlay.add(
                 new PoseGraphic(graphicOverlay, pose, calibrationOffsetX, calibrationOffsetY));
         graphicOverlay.invalidate(); // Redraw the overlay
+        checkForFrequencyStart();
+    }
+
+    private void checkForFrequencyStart() {
+        int playThreshold = 1000;
+        if (PoseGraphic.getRightIndexY() > playThreshold) {
+            if (!isFrequencyPlaying) {
+                SoundGenerator.playFrequency();
+                isFrequencyPlaying = true;
+            }
+        }
     }
 
     @Override
@@ -137,9 +165,11 @@ public class PoseDetectionActivity extends AppCompatActivity {
         super.onDestroy();
         if (poseDetector != null) {
             poseDetector.close();
+            SoundGenerator.stopFrequency();
         }
     }
 
+    // Handle camera permission request result
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == 1001 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

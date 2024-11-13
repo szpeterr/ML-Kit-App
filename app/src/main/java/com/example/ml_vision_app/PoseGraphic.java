@@ -14,6 +14,7 @@ public class PoseGraphic extends GraphicOverlay.Graphic {
     private final Paint linePaint;
     private final float offsetX;
     private final float offsetY;
+    private static float rightIndexY;
 
     public PoseGraphic(GraphicOverlay overlay, Pose pose, float offsetX, float offsetY) {
         super(overlay);
@@ -42,6 +43,10 @@ public class PoseGraphic extends GraphicOverlay.Graphic {
             float x = landmark.getPosition().x + offsetX;
             float y = landmark.getPosition().y + offsetY;
             canvas.drawCircle(x, y, 8f, circlePaint);
+            if (landmark.getLandmarkType() == PoseLandmark.RIGHT_INDEX) {
+                rightIndexY = y;
+            }
+            //checkForSoundStart();
         }
 
         // Draw connections between keypoints, applying the offsets
@@ -71,6 +76,10 @@ public class PoseGraphic extends GraphicOverlay.Graphic {
                     linePaint
             );
         }
+    }
+
+    public static float getRightIndexY() {
+        return rightIndexY;
     }
 }
 
