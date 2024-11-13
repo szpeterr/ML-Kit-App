@@ -82,8 +82,8 @@ public class PoseDetectionActivity extends AppCompatActivity {
     private void toggleCamera() {
         // Switch between front and back camera
         cameraSelector = (cameraSelector == CameraSelector.DEFAULT_FRONT_CAMERA)
-                ? CameraSelector.DEFAULT_FRONT_CAMERA
-                : CameraSelector.DEFAULT_BACK_CAMERA;
+                ? CameraSelector.DEFAULT_BACK_CAMERA
+                : CameraSelector.DEFAULT_FRONT_CAMERA;
         startCamera(); // Restart camera with the new selector
     }
 
