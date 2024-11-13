@@ -1,9 +1,13 @@
 package com.example.ml_vision_app;
 
+import static android.content.ContentValues.TAG;
 import static com.example.ml_vision_app.SoundGenerator.isFrequencyPlaying;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.Image;
 import android.os.Bundle;
@@ -18,9 +22,10 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.LifecycleOwner;
 
+import android.util.Log;
 import android.util.Size;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -39,6 +44,15 @@ public class PoseDetectionActivity extends AppCompatActivity {
     private PreviewView previewView;
     private GraphicOverlay graphicOverlay;
     private PoseDetector poseDetector;
+    //private SoundGenerator soundGenerator;
+    private int frameWidth;
+    private int frameHeight;
+    private BroadcastReceiver activityDestroyedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            SoundGenerator.stopFrequency();
+        }
+    };
     //private boolean isPlaying = false;
 
     @Override
@@ -48,6 +62,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
 
         previewView = findViewById(R.id.camera_preview);
         graphicOverlay = findViewById(R.id.graphic_overlay);
+        //soundGenerator = new SoundGenerator();
 
         // Set up PoseDetector with STREAM_MODE
         PoseDetectorOptionsBase options = new PoseDetectorOptions.Builder()
@@ -61,6 +76,15 @@ public class PoseDetectionActivity extends AppCompatActivity {
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1001);
         }
+
+        previewView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                frameWidth = right - left;
+                frameHeight = bottom - top;
+
+            }
+        });
     }
 
     // Start the camera and bind to lifecycle
@@ -117,17 +141,45 @@ public class PoseDetectionActivity extends AppCompatActivity {
         graphicOverlay.clear();
         graphicOverlay.add(new PoseGraphic(graphicOverlay, pose));
         graphicOverlay.invalidate(); // Redraw the overlay
+        // Calculate the difference in Y coordinates
+        float fingerYDistance = Math.abs(PoseGraphic.getLeftIndexY() - PoseGraphic.getRightIndexY());
+        Log.d(TAG, "playFrequency: " + (PoseGraphic.getLeftIndexY() - PoseGraphic.getRightIndexY()));
+
+        // Apply threshold and adjust frequency
+        if (fingerYDistance > 100) {
+            double frequencyOffset = fingerYDistance * 0.1f;
+            double newFrequency = SoundGenerator.getFrequency() + frequencyOffset;
+
+            // Apply frequency limits
+            double minFrequency = 200f; // Example minimum frequency
+            double maxFrequency = 800f; // Example maximum frequency
+            //newFrequency = Math.max(minFrequency, Math.min(maxFrequency, newFrequency));
+            if (newFrequency < minFrequency) {
+                newFrequency = minFrequency;
+            } else if (newFrequency > maxFrequency) {
+                newFrequency = maxFrequency;
+            } else {
+                SoundGenerator.setFrequency(newFrequency);
+            }
+        }
         checkForFrequencyStart();
     }
 
     private void checkForFrequencyStart() {
-        int playThreshold = 1000;
-        if (PoseGraphic.getRightIndexY() > playThreshold) {
-            if (!isFrequencyPlaying) {
-                SoundGenerator.playFrequency();
-                isFrequencyPlaying = true;
+        //int playThreshold = 1000;
+        if ((PoseGraphic.getRightIndexY() > PoseGraphic.getLeftIndexY()) &&
+                !isLandmarkOutOfBounds(PoseGraphic.getRightIndexX(), PoseGraphic.getRightIndexY())) {
+            if (!isLandmarkOutOfBounds(PoseGraphic.getLeftIndexX(), PoseGraphic.getLeftIndexY())) {
+                if (!isFrequencyPlaying) {
+                    SoundGenerator.playFrequency();
+                    isFrequencyPlaying = true;
+                }
             }
         }
+    }
+
+    private boolean isLandmarkOutOfBounds(float x, float y) {
+        return x < 0 || x >= frameWidth || y < 0 || y >= frameHeight;
     }
 
     @Override
@@ -150,4 +202,5 @@ public class PoseDetectionActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
     }
+
 }
