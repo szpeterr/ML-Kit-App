@@ -47,6 +47,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
     //private SoundGenerator soundGenerator;
     private int frameWidth;
     private int frameHeight;
+    private float fingerYDistance;
     private BroadcastReceiver activityDestroyedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -142,13 +143,13 @@ public class PoseDetectionActivity extends AppCompatActivity {
         graphicOverlay.add(new PoseGraphic(graphicOverlay, pose));
         graphicOverlay.invalidate(); // Redraw the overlay
         // Calculate the difference in Y coordinates
-        float fingerYDistance = Math.abs(PoseGraphic.getLeftIndexY() - PoseGraphic.getRightIndexY());
+        fingerYDistance = Math.abs(PoseGraphic.getLeftIndexY() - PoseGraphic.getRightIndexY());
         Log.d(TAG, "playFrequency: " + (PoseGraphic.getLeftIndexY() - PoseGraphic.getRightIndexY()));
 
         // Apply threshold and adjust frequency
-        if (fingerYDistance > 100) {
+
             double frequencyOffset = fingerYDistance * 0.1f;
-            double newFrequency = SoundGenerator.getFrequency() + frequencyOffset;
+            double newFrequency = SoundGenerator.getBaseFrequency() + frequencyOffset;
 
             // Apply frequency limits
             double minFrequency = 200f; // Example minimum frequency
@@ -161,21 +162,28 @@ public class PoseDetectionActivity extends AppCompatActivity {
             } else {
                 SoundGenerator.setFrequency(newFrequency);
             }
-        }
-        checkForFrequencyStart();
+
+            checkForFrequencyStart();
     }
 
     private void checkForFrequencyStart() {
         //int playThreshold = 1000;
-        if ((PoseGraphic.getRightIndexY() > PoseGraphic.getLeftIndexY()) &&
-                !isLandmarkOutOfBounds(PoseGraphic.getRightIndexX(), PoseGraphic.getRightIndexY())) {
+        //if ((PoseGraphic.getRightIndexY() > PoseGraphic.getLeftIndexY()) &&
+        //!isLandmarkOutOfBounds(PoseGraphic.getRightIndexX(), PoseGraphic.getRightIndexY())) {
+        if (fingerYDistance > 100) {
             if (!isLandmarkOutOfBounds(PoseGraphic.getLeftIndexX(), PoseGraphic.getLeftIndexY())) {
                 if (!isFrequencyPlaying) {
                     SoundGenerator.playFrequency();
                     isFrequencyPlaying = true;
                 }
             }
+        } else {
+            if (isFrequencyPlaying) {
+                SoundGenerator.stopFrequency();
+                isFrequencyPlaying = false;
+            }
         }
+        //}
     }
 
     private boolean isLandmarkOutOfBounds(float x, float y) {

@@ -73,6 +73,9 @@ public class SoundGenerator {
         }
     }
 
+    public static double getBaseFrequency() {
+        return baseFrequency;
+    }
     public static double getFrequency() {
         return frequency;
     }
