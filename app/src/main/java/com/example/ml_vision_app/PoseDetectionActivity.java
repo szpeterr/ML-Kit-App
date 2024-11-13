@@ -37,6 +37,7 @@ import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
+import com.google.mlkit.vision.pose.PoseLandmark;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 
 import java.util.concurrent.ExecutionException;
@@ -76,19 +77,11 @@ public class PoseDetectionActivity extends AppCompatActivity {
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1001);
         }
-
-        // Start calibration process
-        startCalibration();
-    }
-
-    private void startCalibration() {
-        Intent intent = new Intent(this, CalibrationActivity.class);
-        startActivityForResult(intent, CALIBRATION_REQUEST_CODE);
     }
 
     private void toggleCamera() {
         // Switch between front and back camera
-        cameraSelector = (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA)
+        cameraSelector = (cameraSelector == CameraSelector.DEFAULT_FRONT_CAMERA)
                 ? CameraSelector.DEFAULT_FRONT_CAMERA
                 : CameraSelector.DEFAULT_BACK_CAMERA;
         startCamera(); // Restart camera with the new selector
@@ -118,7 +111,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
     // Create image analysis for pose detection
     private ImageAnalysis createImageAnalysis() {
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
-                .setTargetResolution(new Size(1280, 720))
+                //.setTargetResolution(new Size(1280, 720))
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build();
 
@@ -135,7 +128,10 @@ public class PoseDetectionActivity extends AppCompatActivity {
 
             // Process the image for pose detection
             poseDetector.process(image)
-                    .addOnSuccessListener(this::drawPose)
+                    .addOnSuccessListener(pose -> {
+                        drawPose(pose); // Draw the skeleton overlay
+                        checkFingerPositionAndPlaySound(pose); // Check finger position and play sound
+                    })
                     .addOnFailureListener(e -> e.printStackTrace())
                     .addOnCompleteListener(task -> imageProxy.close());
         }
@@ -148,6 +144,26 @@ public class PoseDetectionActivity extends AppCompatActivity {
                 new PoseGraphic(graphicOverlay, pose, calibrationOffsetX, calibrationOffsetY));
         graphicOverlay.invalidate(); // Redraw the overlay
         checkForFrequencyStart();
+    }
+
+    private void checkFingerPositionAndPlaySound(Pose pose) {
+        // Assuming you want to track the right index finger
+        PoseLandmark indexFinger = pose.getPoseLandmark(PoseLandmark.RIGHT_INDEX);
+
+        if (indexFinger != null) {
+            float x = indexFinger.getPosition().x;
+            float y = indexFinger.getPosition().y;
+
+            if (y < 300) { // Example condition: play sound when finger's y-position is above 300
+                if (!SoundGenerator.isFrequencyPlaying) {
+                    SoundGenerator.playFrequency();
+                }
+            } else {
+                if (SoundGenerator.isFrequencyPlaying) {
+                    SoundGenerator.stopFrequency();
+                }
+            }
+        }
     }
 
     private void checkForFrequencyStart() {

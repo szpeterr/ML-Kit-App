@@ -54,7 +54,10 @@ public class MainActivity extends AppCompatActivity {
             startActivity(myIntent);
         });
 
-        Calibration.setOnClickListener(v -> startCalibration());
+        Calibration.setOnClickListener(v -> {
+            Intent myIntent = new Intent(MainActivity.this, CalibrationActivity.class);
+            startActivity(myIntent);
+        });
 
     }
     @Override
