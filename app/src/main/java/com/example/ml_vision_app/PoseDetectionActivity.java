@@ -3,6 +3,7 @@ package com.example.ml_vision_app;
 import static com.example.ml_vision_app.SoundGenerator.isFrequencyPlaying;
 
 import static com.example.ml_vision_app.MainActivity.CALIBRATION_REQUEST_CODE;
+import static com.example.ml_vision_app.SoundGenerator.playFrequency;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -136,6 +137,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
                     .addOnCompleteListener(task -> imageProxy.close());
         }
     }
+
 
     // Draw the pose on the overlay
     private void drawPose(Pose pose) {
