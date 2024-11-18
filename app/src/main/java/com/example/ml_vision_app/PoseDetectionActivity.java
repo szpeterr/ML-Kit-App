@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.Image;
 import android.os.Bundle;
-import android.util.Size;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -24,13 +23,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.lifecycle.LifecycleOwner;
-
-import android.util.Size;
-import android.widget.Toast;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
@@ -51,6 +43,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
     //private boolean isPlaying = false;
     private ImageButton switchCameraButton;
     private CameraSelector cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA;
+    private SoundPlayer soundPlayer;
     private float calibrationOffsetX = 0f;
     private float calibrationOffsetY = 0f;
 
@@ -62,6 +55,9 @@ public class PoseDetectionActivity extends AppCompatActivity {
         previewView = findViewById(R.id.camera_preview);
         graphicOverlay = findViewById(R.id.graphic_overlay);
         switchCameraButton = findViewById(R.id.switch_camera_button);
+
+
+        soundPlayer = new SoundPlayer(this);
 
         // Initialize PoseDetector with STREAM_MODE
         PoseDetectorOptions options = new PoseDetectorOptions.Builder()
@@ -143,7 +139,6 @@ public class PoseDetectionActivity extends AppCompatActivity {
         graphicOverlay.add(
                 new PoseGraphic(graphicOverlay, pose, calibrationOffsetX, calibrationOffsetY));
         graphicOverlay.invalidate(); // Redraw the overlay
-        checkForFrequencyStart();
     }
 
     private void checkFingerPositionAndPlaySound(Pose pose) {
@@ -166,22 +161,12 @@ public class PoseDetectionActivity extends AppCompatActivity {
         }
     }
 
-    private void checkForFrequencyStart() {
-        int playThreshold = 1000;
-        if (PoseGraphic.getRightIndexY() > playThreshold) {
-            if (!isFrequencyPlaying) {
-                SoundGenerator.playFrequency();
-                isFrequencyPlaying = true;
-            }
-        }
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (poseDetector != null) {
             poseDetector.close();
-            SoundGenerator.stopFrequency();
+            soundPlayer.release();
         }
     }
 
