@@ -1,5 +1,6 @@
 package com.example.ml_vision_app;
 
+import static android.content.ContentValues.TAG;
 import static com.example.ml_vision_app.SoundGenerator.isFrequencyPlaying;
 
 import static com.example.ml_vision_app.MainActivity.CALIBRATION_REQUEST_CODE;
@@ -10,6 +11,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.Image;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -32,6 +34,8 @@ import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 
+import java.util.Map;
+//import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 
@@ -46,6 +50,8 @@ public class PoseDetectionActivity extends AppCompatActivity {
     private SoundPlayer soundPlayer;
     private float calibrationOffsetX = 0f;
     private float calibrationOffsetY = 0f;
+    private float sectorSize = 0.0f; // Size of the area accounted for one note
+    int[] soundRes = {R.raw.a4, R.raw.b4, R.raw.c4, R.raw.d4, R.raw.e4, R.raw.f4, R.raw.g4};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +127,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
         Image mediaImage = imageProxy.getImage();
         if (mediaImage != null) {
             InputImage image = InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
-
+            sectorSize = (float) image.getHeight() / soundPlayer.numberOfSounds;
             // Process the image for pose detection
             poseDetector.process(image)
                     .addOnSuccessListener(pose -> {
@@ -142,23 +148,62 @@ public class PoseDetectionActivity extends AppCompatActivity {
     }
 
     private void checkFingerPositionAndPlaySound(Pose pose) {
-        // Assuming you want to track the right index finger
-        PoseLandmark indexFinger = pose.getPoseLandmark(PoseLandmark.RIGHT_INDEX);
+        // Getting index finger positions
+        PoseLandmark rightIndexFinger = pose.getPoseLandmark(PoseLandmark.RIGHT_INDEX);
+        PoseLandmark leftIndexFinger = pose.getPoseLandmark(PoseLandmark.LEFT_INDEX);
 
-        if (indexFinger != null) {
-            float x = indexFinger.getPosition().x;
-            float y = indexFinger.getPosition().y;
+        if (rightIndexFinger != null) {
+            //float rightX = rightIndexFinger.getPosition().x;
+            float rightY = rightIndexFinger.getPosition().y;
+            //float leftX = leftIndexFinger.getPosition().x;
+            float leftY = leftIndexFinger.getPosition().y;
 
-            if (y < 300) { // Example condition: play sound when finger's y-position is above 300
-                if (!SoundGenerator.isFrequencyPlaying) {
-                    SoundGenerator.playFrequency();
-                }
-            } else {
-                if (SoundGenerator.isFrequencyPlaying) {
-                    SoundGenerator.stopFrequency();
-                }
+            for (int i = 0; i < soundPlayer.numberOfSounds + 1; i++) {
+                if (rightY >= i * sectorSize && rightY < i+1 * sectorSize)
+                    if (currentLeftFingerSpeed(pose) > 100.0f)
+                        soundPlayer.playPianoSound(soundRes[i]);
             }
+
         }
+    }
+
+    private float currentLeftFingerSpeed(Pose pose) {
+        PoseLandmark leftIndexFinger = pose.getPoseLandmark(PoseLandmark.LEFT_INDEX);
+        float prevIndexFingerX = 0f;
+        float prevIndexFingerY = 0f;
+        float currentIndexFingerX = 0f;
+        float currentIndexFingerY = 0f;
+
+        // Previous frame timestamp
+        long prevFrameTime = 0L;
+
+        // ... in your pose detection callback ...
+
+        // Get current position of the left index finger
+        currentIndexFingerX = leftIndexFinger.getPosition().x;
+        currentIndexFingerY = leftIndexFinger.getPosition().y;
+
+        // Get current frame timestamp
+        long currentFrameTime = System.currentTimeMillis();
+
+        // Calculate time difference
+        float deltaTime = (currentFrameTime - prevFrameTime) / 1000f; // Convert to seconds
+
+        // Calculate displacement
+        float displacementX = currentIndexFingerX - prevIndexFingerX;
+        float displacementY = currentIndexFingerY - prevIndexFingerY;
+
+        // Calculate speed
+        float speed = (float) Math.sqrt(displacementX * displacementX + displacementY * displacementY) / deltaTime;
+
+        // ... use the speed value ...
+
+        // Update previous position and timestamp
+        prevIndexFingerX = currentIndexFingerX;
+        prevIndexFingerY = currentIndexFingerY;
+        prevFrameTime = currentFrameTime;
+        Log.d(TAG, "currentLeftFingerSpeed: " + speed);
+        return speed;
     }
 
     @Override

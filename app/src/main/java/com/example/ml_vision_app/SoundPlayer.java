@@ -10,7 +10,8 @@ import java.util.HashMap;
 public class SoundPlayer {
 
     private SoundPool sp;
-    private HashMap pianoNotes = new HashMap();
+    final HashMap pianoNotes = new HashMap();
+    int numberOfSounds;
 
     public SoundPlayer(Context pContext)
     {
@@ -20,13 +21,13 @@ public class SoundPlayer {
         pianoNotes.put(R.raw.a4, this.sp.load(pContext, R.raw.a4, 1));
         pianoNotes.put(R.raw.b4, this.sp.load(pContext, R.raw.b4, 1));
         pianoNotes.put(R.raw.c4, this.sp.load(pContext, R.raw.c4, 1));
-        pianoNotes.put(R.raw.c5, this.sp.load(pContext, R.raw.c5, 1));
+        //pianoNotes.put(R.raw.c5, this.sp.load(pContext, R.raw.c5, 1));
         pianoNotes.put(R.raw.d4, this.sp.load(pContext, R.raw.d4, 1));
         pianoNotes.put(R.raw.e4, this.sp.load(pContext, R.raw.e4, 1));
         pianoNotes.put(R.raw.f4, this.sp.load(pContext, R.raw.f4, 1));
         pianoNotes.put(R.raw.g4, this.sp.load(pContext, R.raw.g4, 1));
+        numberOfSounds = pianoNotes.size();
     }
-
     public void playPianoSound(int pianoRes) {
         // Play the piano sound
         int pianoSoundId = (Integer) pianoNotes.get(pianoRes);
