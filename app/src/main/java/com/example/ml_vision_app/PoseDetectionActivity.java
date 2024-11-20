@@ -50,7 +50,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
     private SoundPlayer soundPlayer;
     private float calibrationOffsetX = 0f;
     private float calibrationOffsetY = 0f;
-    private float sectorSize = 0.0f; // Size of the area accounted for one note
+    private float sectorSize = 0.0f; // Size of the area accounted for one note. NEEDS AN OFFSET!
     int[] soundRes = {R.raw.a4, R.raw.b4, R.raw.c4, R.raw.d4, R.raw.e4, R.raw.f4, R.raw.g4};
 
     @Override
@@ -157,11 +157,27 @@ public class PoseDetectionActivity extends AppCompatActivity {
             float rightY = rightIndexFinger.getPosition().y;
             //float leftX = leftIndexFinger.getPosition().x;
             float leftY = leftIndexFinger.getPosition().y;
+            boolean canPlaySound = true;
+            float minSpeed = 5.0E-7f; //5*10^-7
+            long lastSoundPlayedTime = 0L; // Variable to store the last sound played time
+            long minSoundDelay = 500L;
 
-            for (int i = 0; i < soundPlayer.numberOfSounds + 1; i++) {
-                if (rightY >= i * sectorSize && rightY < i+1 * sectorSize)
-                    if (currentLeftFingerSpeed(pose) > 100.0f)
-                        soundPlayer.playPianoSound(soundRes[i]);
+            for (int i = 0; i < soundPlayer.numberOfSounds; i++) {
+                if (rightY >= i * sectorSize && rightY < (i + 1) * sectorSize) {
+                    Log.d(TAG, "checkFingerPositionAndPlaySound: " + "in zone " + i);
+                    if (currentLeftFingerSpeed(pose) > minSpeed && canPlaySound) {
+                        Log.d(TAG, "checkFingerPositionAndPlaySound: speed is " + currentLeftFingerSpeed(pose));
+                        long currentTime = System.currentTimeMillis();
+                        if (currentTime - lastSoundPlayedTime >= minSoundDelay) {
+                            soundPlayer.playPianoSound(soundRes[i]);
+                            lastSoundPlayedTime = currentTime;
+                            canPlaySound = false;
+                            Log.d(TAG, "checkFingerPositionAndPlaySound: " + "sound played");
+                        }
+                    } else {
+                        canPlaySound = true;
+                    }
+                }
             }
 
         }
