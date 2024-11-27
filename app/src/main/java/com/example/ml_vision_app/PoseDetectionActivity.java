@@ -84,8 +84,8 @@ public class PoseDetectionActivity extends AppCompatActivity {
     private void toggleCamera() {
         // Switch between front and back camera
         cameraSelector = (cameraSelector == CameraSelector.DEFAULT_FRONT_CAMERA)
-                ? CameraSelector.DEFAULT_FRONT_CAMERA
-                : CameraSelector.DEFAULT_BACK_CAMERA;
+                ? CameraSelector.DEFAULT_BACK_CAMERA
+                : CameraSelector.DEFAULT_FRONT_CAMERA;
         startCamera(); // Restart camera with the new selector
     }
 
@@ -218,7 +218,8 @@ public class PoseDetectionActivity extends AppCompatActivity {
         prevIndexFingerX = currentIndexFingerX;
         prevIndexFingerY = currentIndexFingerY;
         prevFrameTime = currentFrameTime;
-        Log.d(TAG, "currentLeftFingerSpeed: " + speed);
+        Log.d(TAG, "currentLeftFingerSpeed: " + "speed is " + speed);
+        Log.d(TAG, "currentLeftFingerSpeed: " + "moved distance is " + displacementX);
         if (displacementX > 300) {
             return speed;
         } else {
