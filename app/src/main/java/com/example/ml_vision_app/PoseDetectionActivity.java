@@ -149,8 +149,8 @@ public class PoseDetectionActivity extends AppCompatActivity {
 
     private void checkFingerPositionAndPlaySound(Pose pose) {
         // Getting index finger positions
-        PoseLandmark rightIndexFinger = pose.getPoseLandmark(PoseLandmark.RIGHT_INDEX);
-        PoseLandmark leftIndexFinger = pose.getPoseLandmark(PoseLandmark.LEFT_INDEX);
+        PoseLandmark rightIndexFinger = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST); //RIGHT_INDEX
+        PoseLandmark leftIndexFinger = pose.getPoseLandmark(PoseLandmark.LEFT_WRIST); //LEFT_INDEX
 
         if (rightIndexFinger != null) {
             //float rightX = rightIndexFinger.getPosition().x;
@@ -158,7 +158,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
             //float leftX = leftIndexFinger.getPosition().x;
             float leftY = leftIndexFinger.getPosition().y;
             boolean canPlaySound = true;
-            float minSpeed = 5.0E-7f; //5*10^-7
+            float minSpeed = 3.2E-7f; // E = 10^-7
             long lastSoundPlayedTime = 0L; // Variable to store the last sound played time
             long minSoundDelay = 500L;
 
@@ -219,7 +219,11 @@ public class PoseDetectionActivity extends AppCompatActivity {
         prevIndexFingerY = currentIndexFingerY;
         prevFrameTime = currentFrameTime;
         Log.d(TAG, "currentLeftFingerSpeed: " + speed);
-        return speed;
+        if (displacementX > 300) {
+            return speed;
+        } else {
+            return 0;
+        }
     }
 
     @Override
