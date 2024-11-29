@@ -34,6 +34,8 @@ import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 
+import org.billthefarmer.mididriver.MidiConstants;
+
 import java.util.Map;
 //import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
@@ -51,7 +53,10 @@ public class PoseDetectionActivity extends AppCompatActivity {
     private float calibrationOffsetX = 0f;
     private float calibrationOffsetY = 0f;
     private float sectorSize = 0.0f; // Size of the area accounted for one note. NEEDS AN OFFSET!
-    int[] soundRes = {R.raw.a4, R.raw.b4, R.raw.c4, R.raw.d4, R.raw.e4, R.raw.f4, R.raw.g4};
+    private MidiHelper midiHelper;
+    //int[] soundRes = {R.raw.a4, R.raw.b4, R.raw.c4, R.raw.d4, R.raw.e4, R.raw.f4, R.raw.g4};
+    //Codes of notes and half notes
+    int[] soundCodes = {60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +69,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
 
 
         soundPlayer = new SoundPlayer(this);
+        midiHelper = new MidiHelper();
 
         // Initialize PoseDetector with STREAM_MODE
         PoseDetectorOptions options = new PoseDetectorOptions.Builder()
@@ -79,6 +85,10 @@ public class PoseDetectionActivity extends AppCompatActivity {
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1001);
         }
+    }
+    private void playNote(int id) {
+        midiHelper.sendMidi(0x90, soundCodes[id], 127); // NOTE_ON, Middle C
+        new android.os.Handler().postDelayed(() -> midiHelper.sendMidi(0x80, soundCodes[id], 0), 500); // NOTE_OFF
     }
 
     private void toggleCamera() {
@@ -169,7 +179,9 @@ public class PoseDetectionActivity extends AppCompatActivity {
                         Log.d(TAG, "checkFingerPositionAndPlaySound: speed is " + currentLeftFingerSpeed(pose));
                         long currentTime = System.currentTimeMillis();
                         if (currentTime - lastSoundPlayedTime >= minSoundDelay) {
-                            soundPlayer.playPianoSound(soundRes[i]);
+                            //soundPlayer.playPianoSound(soundRes[i]); //play wav file
+                            //soundPlayer.playPianoSound(soundCodes[i]); //play note
+                            playNote(i); //play for set time
                             lastSoundPlayedTime = currentTime;
                             canPlaySound = false;
                             Log.d(TAG, "checkFingerPositionAndPlaySound: " + "sound played");
@@ -233,6 +245,9 @@ public class PoseDetectionActivity extends AppCompatActivity {
         if (poseDetector != null) {
             poseDetector.close();
             soundPlayer.release();
+        }
+        if (midiHelper != null) {
+            midiHelper.stopMidi();
         }
     }
 
