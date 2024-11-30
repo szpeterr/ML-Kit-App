@@ -65,9 +65,11 @@ public class PoseGraphic extends GraphicOverlay.Graphic {
     }
 
     private void drawLine(Canvas canvas, int startLandmark, int endLandmark) {
+        // Check if both landmarks are present in the pose
         PoseLandmark start = pose.getPoseLandmark(startLandmark);
         PoseLandmark end = pose.getPoseLandmark(endLandmark);
         if (start != null && end != null) {
+            // Draw a line between the two landmarks
             canvas.drawLine(
                     start.getPosition().x + offsetX,
                     start.getPosition().y + offsetY,

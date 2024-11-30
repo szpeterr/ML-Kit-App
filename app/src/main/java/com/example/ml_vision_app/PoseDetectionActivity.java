@@ -1,7 +1,6 @@
 package com.example.ml_vision_app;
 
 import static android.content.ContentValues.TAG;
-import static com.example.ml_vision_app.SoundGenerator.isFrequencyPlaying;
 
 import static com.example.ml_vision_app.MainActivity.CALIBRATION_REQUEST_CODE;
 
@@ -34,34 +33,35 @@ import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 
-import org.billthefarmer.mididriver.MidiConstants;
-
-import java.util.Map;
 //import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 
 public class PoseDetectionActivity extends AppCompatActivity {
 
+    private static final float BOTTOM_OFFSET_PERCENT = 0.25f;
     private PreviewView previewView;
     private GraphicOverlay graphicOverlay;
     private PoseDetector poseDetector;
     //private boolean isPlaying = false;
     private ImageButton switchCameraButton;
     private CameraSelector cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA;
-    private SoundPlayer soundPlayer;
+    //private SoundPlayer soundPlayer;
     private float calibrationOffsetX = 0f;
     private float calibrationOffsetY = 0f;
     private float prevIndexFingerX = 0f;
     private float prevIndexFingerY = 0f;
     private long prevFrameTime = 0L;
+    private float imageHeight;
+    private float imageWidth;
     private boolean canPlaySound = true;
     private long lastSoundPlayedTime = 0L;
-    private float sectorSize = 0.0f; // Size of the area accounted for one note. NEEDS AN OFFSET!
     private MidiHelper midiHelper;
     //int[] soundRes = {R.raw.a4, R.raw.b4, R.raw.c4, R.raw.d4, R.raw.e4, R.raw.f4, R.raw.g4};
     //Codes of notes and half notes
-    int[] soundCodes = {60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72};
+    static int[] soundCodes = {60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72};
+    private static final int SEGNUM = soundCodes.length; // segment number
+    private float segmentSize = 0.0f; // Size of the area accounted for one note. NEEDS AN OFFSET!
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +73,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
         switchCameraButton = findViewById(R.id.switch_camera_button);
 
 
-        soundPlayer = new SoundPlayer(this);
+        //soundPlayer = new SoundPlayer(this);
         midiHelper = new MidiHelper();
 
         // Initialize PoseDetector with STREAM_MODE
@@ -142,7 +142,9 @@ public class PoseDetectionActivity extends AppCompatActivity {
         Image mediaImage = imageProxy.getImage();
         if (mediaImage != null) {
             InputImage image = InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
-            sectorSize = (float) image.getHeight() / soundPlayer.numberOfSounds;
+            imageHeight = image.getHeight();
+            imageWidth = image.getWidth();
+            segmentSize = (float) imageHeight / SEGNUM ; // soundPlayer.numberOfSounds;
             // Process the image for pose detection
             poseDetector.process(image)
                     .addOnSuccessListener(pose -> {
@@ -159,6 +161,8 @@ public class PoseDetectionActivity extends AppCompatActivity {
         graphicOverlay.clear();
         graphicOverlay.add(
                 new PoseGraphic(graphicOverlay, pose, calibrationOffsetX, calibrationOffsetY));
+        graphicOverlay.add(
+                new SegmentGraphic(graphicOverlay, imageHeight * BOTTOM_OFFSET_PERCENT, imageWidth, segmentSize, SEGNUM));
         graphicOverlay.invalidate(); // Redraw the overlay
     }
 
@@ -179,11 +183,13 @@ public class PoseDetectionActivity extends AppCompatActivity {
         }
 
         long currentTime = System.currentTimeMillis();
-        for (int i = 0; i < soundPlayer.numberOfSounds; i++) {
-            if (rightY >= i * sectorSize && rightY < (i + 1) * sectorSize) {
+        for (int i = 0; i < SEGNUM; i++) {
+            // if finger is inside segment with offset applied
+            if (rightY >= i * segmentSize + BOTTOM_OFFSET_PERCENT * imageHeight && rightY < (i + 1) * segmentSize + BOTTOM_OFFSET_PERCENT * imageHeight) {
                 Log.d(TAG, "checkFingerPositionAndPlaySound: " + "in zone " + i);
                 if (canPlaySound && currentTime - lastSoundPlayedTime >= minSoundDelay) {
                     playNote(i); // Play note for zone
+
                     lastSoundPlayedTime = currentTime;
                     canPlaySound = false;
                     Log.d(TAG, "checkFingerPositionAndPlaySound: sound played");
@@ -237,7 +243,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
         super.onDestroy();
         if (poseDetector != null) {
             poseDetector.close();
-            soundPlayer.release();
+            //soundPlayer.release();
         }
         if (midiHelper != null) {
             midiHelper.stopMidi();
