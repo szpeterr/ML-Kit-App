@@ -52,6 +52,11 @@ public class PoseDetectionActivity extends AppCompatActivity {
     private SoundPlayer soundPlayer;
     private float calibrationOffsetX = 0f;
     private float calibrationOffsetY = 0f;
+    private float prevIndexFingerX = 0f;
+    private float prevIndexFingerY = 0f;
+    private long prevFrameTime = 0L;
+    private boolean canPlaySound = true;
+    private long lastSoundPlayedTime = 0L;
     private float sectorSize = 0.0f; // Size of the area accounted for one note. NEEDS AN OFFSET!
     private MidiHelper midiHelper;
     //int[] soundRes = {R.raw.a4, R.raw.b4, R.raw.c4, R.raw.d4, R.raw.e4, R.raw.f4, R.raw.g4};
@@ -158,64 +163,55 @@ public class PoseDetectionActivity extends AppCompatActivity {
     }
 
     private void checkFingerPositionAndPlaySound(Pose pose) {
+        //float minSpeed = 3.2E-7f; // E = 10^-7
+        float minSpeed = 500.0f;
+        long minSoundDelay = 500L;
         // Getting index finger positions
-        PoseLandmark rightIndexFinger = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST); //RIGHT_INDEX
-        PoseLandmark leftIndexFinger = pose.getPoseLandmark(PoseLandmark.LEFT_WRIST); //LEFT_INDEX
+        PoseLandmark rightIndexFinger = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST);
+        if (rightIndexFinger == null) return;
 
-        if (rightIndexFinger != null) {
-            //float rightX = rightIndexFinger.getPosition().x;
-            float rightY = rightIndexFinger.getPosition().y;
-            //float leftX = leftIndexFinger.getPosition().x;
-            float leftY = leftIndexFinger.getPosition().y;
-            boolean canPlaySound = true;
-            float minSpeed = 3.2E-7f; // E = 10^-7
-            long lastSoundPlayedTime = 0L; // Variable to store the last sound played time
-            long minSoundDelay = 500L;
+        float rightY = rightIndexFinger.getPosition().y;
 
-            for (int i = 0; i < soundPlayer.numberOfSounds; i++) {
-                if (rightY >= i * sectorSize && rightY < (i + 1) * sectorSize) {
-                    Log.d(TAG, "checkFingerPositionAndPlaySound: " + "in zone " + i);
-                    if (currentLeftFingerSpeed(pose) > minSpeed && canPlaySound) {
-                        Log.d(TAG, "checkFingerPositionAndPlaySound: speed is " + currentLeftFingerSpeed(pose));
-                        long currentTime = System.currentTimeMillis();
-                        if (currentTime - lastSoundPlayedTime >= minSoundDelay) {
-                            //soundPlayer.playPianoSound(soundRes[i]); //play wav file
-                            //soundPlayer.playPianoSound(soundCodes[i]); //play note
-                            playNote(i); //play for set time
-                            lastSoundPlayedTime = currentTime;
-                            canPlaySound = false;
-                            Log.d(TAG, "checkFingerPositionAndPlaySound: " + "sound played");
-                        }
-                    } else {
-                        canPlaySound = true;
-                    }
+        float speed = currentLeftFingerSpeed(pose);
+        if (speed <= minSpeed) {
+            canPlaySound = true;
+            return;
+        }
+
+        long currentTime = System.currentTimeMillis();
+        for (int i = 0; i < soundPlayer.numberOfSounds; i++) {
+            if (rightY >= i * sectorSize && rightY < (i + 1) * sectorSize) {
+                Log.d(TAG, "checkFingerPositionAndPlaySound: " + "in zone " + i);
+                if (canPlaySound && currentTime - lastSoundPlayedTime >= minSoundDelay) {
+                    playNote(i); // Play note for zone
+                    lastSoundPlayedTime = currentTime;
+                    canPlaySound = false;
+                    Log.d(TAG, "checkFingerPositionAndPlaySound: sound played");
                 }
             }
-
         }
     }
 
     private float currentLeftFingerSpeed(Pose pose) {
         PoseLandmark leftIndexFinger = pose.getPoseLandmark(PoseLandmark.LEFT_INDEX);
-        float prevIndexFingerX = 0f;
-        float prevIndexFingerY = 0f;
-        float currentIndexFingerX = 0f;
-        float currentIndexFingerY = 0f;
+        if (leftIndexFinger == null) return 0;
 
-        // Previous frame timestamp
-        long prevFrameTime = 0L;
-
-        // ... in your pose detection callback ...
-
-        // Get current position of the left index finger
-        currentIndexFingerX = leftIndexFinger.getPosition().x;
-        currentIndexFingerY = leftIndexFinger.getPosition().y;
+        float currentIndexFingerX = leftIndexFinger.getPosition().x;
+        float currentIndexFingerY = leftIndexFinger.getPosition().y;
 
         // Get current frame timestamp
         long currentFrameTime = System.currentTimeMillis();
 
         // Calculate time difference
         float deltaTime = (currentFrameTime - prevFrameTime) / 1000f; // Convert to seconds
+
+        // If this is the first frame, deltaTime will be invalid
+        if (prevFrameTime == 0 || deltaTime == 0) {
+            prevIndexFingerX = currentIndexFingerX;
+            prevIndexFingerY = currentIndexFingerY;
+            prevFrameTime = currentFrameTime;
+            return 0;
+        }
 
         // Calculate displacement
         float displacementX = currentIndexFingerX - prevIndexFingerX;
@@ -224,19 +220,16 @@ public class PoseDetectionActivity extends AppCompatActivity {
         // Calculate speed
         float speed = (float) Math.sqrt(displacementX * displacementX + displacementY * displacementY) / deltaTime;
 
-        // ... use the speed value ...
-
         // Update previous position and timestamp
         prevIndexFingerX = currentIndexFingerX;
         prevIndexFingerY = currentIndexFingerY;
         prevFrameTime = currentFrameTime;
-        Log.d(TAG, "currentLeftFingerSpeed: " + "speed is " + speed);
-        Log.d(TAG, "currentLeftFingerSpeed: " + "moved distance is " + displacementX);
-        if (displacementX > 300) {
-            return speed;
-        } else {
-            return 0;
-        }
+
+        //Log.d(TAG, "currentLeftFingerSpeed: " + "speed is " + speed);
+        //Log.d(TAG, "currentLeftFingerSpeed: " + "moved distance is " + displacementX);
+
+        //return (displacementX > 300) ? speed : 0;
+        return speed;
     }
 
     @Override
