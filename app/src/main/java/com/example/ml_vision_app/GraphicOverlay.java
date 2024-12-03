@@ -11,8 +11,8 @@ import java.util.List;
 public class GraphicOverlay extends View {
 
     private final List<Graphic> graphics = new ArrayList<>();
-    private static float offsetX = 0;
-    private static float offsetY = 0;
+    private float offsetX = 0;
+    private float offsetY = 0;
 
     public GraphicOverlay(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -62,18 +62,17 @@ public class GraphicOverlay extends View {
             this.overlay = overlay;
         }
 
-        // Translate x coordinate
+        // Translate x coordinate with scaling and offsets
         protected float translateX(float x) {
-            // Scale the x coordinate based on the overlay's width
-            return x * overlay.getWidth() / overlay.getWidth();
+            return x * overlay.getWidth() + overlay.getOffsetX();
         }
 
-        // Translate y coordinate
+        // Translate y coordinate with scaling and offsets
         protected float translateY(float y) {
-            // Scale the y coordinate based on the overlay's height
-            return y * overlay.getHeight() / overlay.getHeight();
+            return y * overlay.getHeight() + overlay.getOffsetY();
         }
 
+        // Abstract method to be implemented for drawing
         public abstract void draw(Canvas canvas);
     }
 }
