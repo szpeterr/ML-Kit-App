@@ -166,6 +166,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
         graphicOverlay.add(
                 new SegmentGraphic(graphicOverlay, imageHeight * BOTTOM_OFFSET_PERCENT, imageWidth, segmentSize, SEGNUM));
         graphicOverlay.invalidate(); // Redraw the overlay
+        //Log.d(TAG, "drawPose: SegmentGraphics got added: " + graphicOverlay.getChildren().contains(segmentGraphic));
     }
 
     private void checkFingerPositionAndPlaySound(Pose pose) {
