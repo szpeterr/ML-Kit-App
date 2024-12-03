@@ -49,6 +49,8 @@ public class PoseDetectionActivity extends AppCompatActivity {
     //private SoundPlayer soundPlayer;
     private float calibrationOffsetX = 0f;
     private float calibrationOffsetY = 0f;
+    private float currentIndexFingerX = 0f;
+    private float currentIndexFingerY = 0f;
     private float prevIndexFingerX = 0f;
     private float prevIndexFingerY = 0f;
     private long prevFrameTime = 0L;
@@ -168,7 +170,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
 
     private void checkFingerPositionAndPlaySound(Pose pose) {
         //float minSpeed = 3.2E-7f; // E = 10^-7
-        float minSpeed = 500.0f;
+        float minSpeed = 100.0f;
         long minSoundDelay = 500L;
         // Getting index finger positions
         PoseLandmark rightIndexFinger = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST);
@@ -177,7 +179,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
         float rightY = rightIndexFinger.getPosition().y;
 
         float speed = currentLeftFingerSpeed(pose);
-        if (speed <= minSpeed) {
+        if (Math.abs(speed) < minSpeed) {
             canPlaySound = true;
             return;
         }
@@ -202,8 +204,8 @@ public class PoseDetectionActivity extends AppCompatActivity {
         PoseLandmark leftIndexFinger = pose.getPoseLandmark(PoseLandmark.LEFT_INDEX);
         if (leftIndexFinger == null) return 0;
 
-        float currentIndexFingerX = leftIndexFinger.getPosition().x;
-        float currentIndexFingerY = leftIndexFinger.getPosition().y;
+        currentIndexFingerX = leftIndexFinger.getPosition().x;
+        currentIndexFingerY = leftIndexFinger.getPosition().y;
 
         // Get current frame timestamp
         long currentFrameTime = System.currentTimeMillis();
@@ -224,18 +226,19 @@ public class PoseDetectionActivity extends AppCompatActivity {
         float displacementY = currentIndexFingerY - prevIndexFingerY;
 
         // Calculate speed
-        float speed = (float) Math.sqrt(displacementX * displacementX + displacementY * displacementY) / deltaTime;
+        float distance = (float) Math.sqrt(displacementX * displacementX + displacementY * displacementY);
+        float speed = distance / deltaTime;
 
         // Update previous position and timestamp
         prevIndexFingerX = currentIndexFingerX;
         prevIndexFingerY = currentIndexFingerY;
         prevFrameTime = currentFrameTime;
 
-        //Log.d(TAG, "currentLeftFingerSpeed: " + "speed is " + speed);
-        //Log.d(TAG, "currentLeftFingerSpeed: " + "moved distance is " + displacementX);
+        Log.d(TAG, "currentLeftFingerSpeed: " + "speed is " + speed);
+        Log.d(TAG, "currentLeftFingerSpeed: " + "moved distance is " + displacementX);
 
-        //return (displacementX > 300) ? speed : 0;
-        return speed;
+        //return speed;
+        return distance;
     }
 
     @Override
