@@ -1,12 +1,10 @@
 package com.example.ml_vision_app;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
-import android.media.AudioFormat;
-import android.media.AudioManager;
-import android.media.AudioTrack;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
@@ -16,10 +14,15 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import org.billthefarmer.mididriver.MidiConstants;
+import org.billthefarmer.mididriver.GeneralMidiConstants;
+
 public class InstrumentActivity extends AppCompatActivity {
 
-    Button h1Button;
+    Button pianoButton;
+    Button marimbaButton;
     Button backButton;
+    //public static int activeInstrument;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -33,8 +36,14 @@ public class InstrumentActivity extends AppCompatActivity {
             return insets;
         });
 
-        h1Button = findViewById(R.id.hangszer1);
+        pianoButton = findViewById(R.id.Piano);
+        marimbaButton = findViewById(R.id.Marimba);
         backButton = findViewById(R.id.backButton);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("instrumentId", 0);
+        editor.apply();
 
 //        h1Button.setOnTouchListener(new View.OnTouchListener() {
 //            @Override
@@ -63,6 +72,26 @@ public class InstrumentActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        pianoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveInstrument(GeneralMidiConstants.ACOUSTIC_GRAND_PIANO);
+            }
+        });
+
+        marimbaButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveInstrument(GeneralMidiConstants.MARIMBA);
+            }
+        });
+    }
+
+    private void saveInstrument(int newInstrumentId) {
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("instrumentId", newInstrumentId);
+        editor.apply();
     }
 
 //    @Override

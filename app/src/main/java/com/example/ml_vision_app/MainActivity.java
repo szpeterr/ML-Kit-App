@@ -2,7 +2,6 @@ package com.example.ml_vision_app;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
@@ -11,12 +10,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.google.android.material.card.MaterialCardView;
-
 public class MainActivity extends AppCompatActivity {
     public ImageButton FaceDet;
     public ImageButton PoseDet;
-    public ImageButton MusicDet;
+    public ImageButton MusicMenu;
     public ImageButton Calibration;
 
     public static final int CALIBRATION_REQUEST_CODE = 1001;
@@ -41,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
         FaceDet = findViewById(R.id.FaceDetection);
         PoseDet = findViewById(R.id.PoseDetection);
+        MusicMenu = findViewById(R.id.MusicMenu);
         Calibration = findViewById(R.id.Calibration);
 
         FaceDet.setOnClickListener(v -> {
@@ -51,6 +49,11 @@ public class MainActivity extends AppCompatActivity {
 
         PoseDet.setOnClickListener(v -> {
             Intent myIntent = new Intent(MainActivity.this, PoseDetectionActivity.class);
+            startActivity(myIntent);
+        });
+
+        MusicMenu.setOnClickListener(v -> {
+            Intent myIntent = new Intent(MainActivity.this, InstrumentActivity.class);
             startActivity(myIntent);
         });
 

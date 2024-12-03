@@ -26,31 +26,31 @@
 
     <!-- Center buttons -->
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/hangszer1"
+        android:id="@+id/Piano"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:text="Hangszer 1"
+        android:text="Piano"
         app:cornerRadius="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/hangszer2"
+        app:layout_constraintBottom_toTopOf="@+id/Marimba"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/menu_layout"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/hangszer2"
+        android:id="@+id/Marimba"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:text="Hangszer 2"
+        android:text="Marimba"
         app:cornerRadius="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/menu_layout"
-        app:layout_constraintTop_toBottomOf="@+id/hangszer1" />
+        app:layout_constraintTop_toBottomOf="@+id/Piano" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

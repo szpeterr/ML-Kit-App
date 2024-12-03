@@ -6,7 +6,9 @@ import static com.example.ml_vision_app.MainActivity.CALIBRATION_REQUEST_CODE;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.Image;
 import android.os.Bundle;
@@ -32,6 +34,8 @@ import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
+
+import org.billthefarmer.mididriver.MidiConstants;
 
 //import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
@@ -68,6 +72,9 @@ public class PoseDetectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pose_detection);
 
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        int instrumentId = sharedPreferences.getInt("instrumentId", 0);
+
         previewView = findViewById(R.id.camera_preview);
         graphicOverlay = findViewById(R.id.graphic_overlay);
         //private boolean isPlaying = false;
@@ -76,6 +83,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
 
         //soundPlayer = new SoundPlayer(this);
         midiHelper = new MidiHelper();
+        midiHelper.sendMidi(MidiConstants.PROGRAM_CHANGE, instrumentId);
 
         // Initialize PoseDetector with STREAM_MODE
         PoseDetectorOptions options = new PoseDetectorOptions.Builder()
@@ -93,8 +101,8 @@ public class PoseDetectionActivity extends AppCompatActivity {
         }
     }
     private void playNote(int id) {
-        midiHelper.sendMidi(0x90, soundCodes[id], 127); // NOTE_ON, Middle C
-        new android.os.Handler().postDelayed(() -> midiHelper.sendMidi(0x80, soundCodes[id], 0), 500); // NOTE_OFF
+        midiHelper.sendMidi(MidiConstants.NOTE_ON, soundCodes[id], 127); // NOTE_ON, note, velocity 127
+        new android.os.Handler().postDelayed(() -> midiHelper.sendMidi(MidiConstants.NOTE_OFF, soundCodes[id], 0), 500); // NOTE_OFF
     }
 
     private void toggleCamera() {
@@ -173,7 +181,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
         float minSpeed = 100.0f;
         long minSoundDelay = 600L;
         // Getting index finger positions
-        PoseLandmark rightIndexFinger = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST);
+        PoseLandmark rightIndexFinger = pose.getPoseLandmark(PoseLandmark.RIGHT_INDEX);
         if (rightIndexFinger == null) return;
 
         float rightY = rightIndexFinger.getPosition().y;
