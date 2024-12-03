@@ -43,8 +43,6 @@ public class PoseDetectionActivity extends AppCompatActivity {
     private PreviewView previewView;
     private GraphicOverlay graphicOverlay;
     private PoseDetector poseDetector;
-    //private boolean isPlaying = false;
-    private ImageButton switchCameraButton;
     private CameraSelector cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA;
     //private SoundPlayer soundPlayer;
     private float calibrationOffsetX = 0f;
@@ -72,7 +70,8 @@ public class PoseDetectionActivity extends AppCompatActivity {
 
         previewView = findViewById(R.id.camera_preview);
         graphicOverlay = findViewById(R.id.graphic_overlay);
-        switchCameraButton = findViewById(R.id.switch_camera_button);
+        //private boolean isPlaying = false;
+        ImageButton switchCameraButton = findViewById(R.id.switch_camera_button);
 
 
         //soundPlayer = new SoundPlayer(this);
@@ -146,7 +145,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
             InputImage image = InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
             imageHeight = image.getHeight();
             imageWidth = image.getWidth();
-            segmentSize = (float) imageHeight / SEGNUM ; // soundPlayer.numberOfSounds;
+            segmentSize = imageHeight / SEGNUM ; // soundPlayer.numberOfSounds;
             // Process the image for pose detection
             poseDetector.process(image)
                     .addOnSuccessListener(pose -> {

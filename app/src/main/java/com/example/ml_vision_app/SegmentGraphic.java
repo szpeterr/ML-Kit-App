@@ -12,7 +12,7 @@ public class SegmentGraphic extends GraphicOverlay.Graphic {
     private final int _numberOfSegments;
     private final float _yOffset;
     private final float _segmentSize;
-    private float _lineWidth;
+    private final float _lineWidth;
 
     public SegmentGraphic(GraphicOverlay overlay, float yOffset, float imageWidth, float segmentSize, int numberOfSegments) {
         super(overlay);
