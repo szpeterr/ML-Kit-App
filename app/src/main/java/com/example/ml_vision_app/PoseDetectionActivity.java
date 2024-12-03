@@ -171,7 +171,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
     private void checkFingerPositionAndPlaySound(Pose pose) {
         //float minSpeed = 3.2E-7f; // E = 10^-7
         float minSpeed = 100.0f;
-        long minSoundDelay = 500L;
+        long minSoundDelay = 600L;
         // Getting index finger positions
         PoseLandmark rightIndexFinger = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST);
         if (rightIndexFinger == null) return;
