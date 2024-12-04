@@ -64,6 +64,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
     //int[] soundRes = {R.raw.a4, R.raw.b4, R.raw.c4, R.raw.d4, R.raw.e4, R.raw.f4, R.raw.g4};
     //Codes of notes and half notes
     static int[] soundCodes = {60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72};
+    static String[] soundNames = {"C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4", "C5"}; // A "B" magyarban "H"
     private static final int SEGNUM = soundCodes.length; // segment number
     private float segmentSize = 0.0f; // Size of the area accounted for one note. NEEDS AN OFFSET!
 
@@ -198,7 +199,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
             if (rightY >= i * segmentSize + BOTTOM_OFFSET_PERCENT * imageHeight && rightY < (i + 1) * segmentSize + BOTTOM_OFFSET_PERCENT * imageHeight) {
                 Log.d(TAG, "checkFingerPositionAndPlaySound: " + "in zone " + i);
                 if (canPlaySound && currentTime - lastSoundPlayedTime >= minSoundDelay) {
-                    playNote(i); // Play note for zone
+                    playNote(SEGNUM - (i + 1)); // Play note for zone
 
                     lastSoundPlayedTime = currentTime;
                     canPlaySound = false;
