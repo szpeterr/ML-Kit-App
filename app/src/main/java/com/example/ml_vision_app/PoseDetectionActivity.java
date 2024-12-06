@@ -64,7 +64,6 @@ public class PoseDetectionActivity extends AppCompatActivity {
     //int[] soundRes = {R.raw.a4, R.raw.b4, R.raw.c4, R.raw.d4, R.raw.e4, R.raw.f4, R.raw.g4};
     //Codes of notes and half notes
     static int[] soundCodes = {60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72};
-    static String[] soundNames = {"C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4", "C5"}; // A "B" magyarban "H"
     private static final int SEGNUM = soundCodes.length; // segment number
     private float segmentSize = 0.0f; // Size of the area accounted for one note. NEEDS AN OFFSET!
 
@@ -104,6 +103,9 @@ public class PoseDetectionActivity extends AppCompatActivity {
     private void playNote(int id) {
         midiHelper.sendMidi(MidiConstants.NOTE_ON, soundCodes[id], 127); // NOTE_ON, note, velocity 127
         new android.os.Handler().postDelayed(() -> midiHelper.sendMidi(MidiConstants.NOTE_OFF, soundCodes[id], 0), 500); // NOTE_OFF
+    }
+    private void drawNoteLabel(int id) {
+
     }
 
     private void toggleCamera() {
@@ -154,7 +156,10 @@ public class PoseDetectionActivity extends AppCompatActivity {
             InputImage image = InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
             imageHeight = image.getHeight();
             imageWidth = image.getWidth();
-            segmentSize = imageHeight / SEGNUM ; // soundPlayer.numberOfSounds;
+            imageHeight = graphicOverlay.getHeight();
+            imageWidth = graphicOverlay.getWidth();
+            segmentSize = imageHeight / SEGNUM;
+
             // Process the image for pose detection
             poseDetector.process(image)
                     .addOnSuccessListener(pose -> {
@@ -172,7 +177,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
         graphicOverlay.add(
                 new PoseGraphic(graphicOverlay, pose, calibrationOffsetX, calibrationOffsetY));
         graphicOverlay.add(
-                new SegmentGraphic(graphicOverlay, imageHeight * BOTTOM_OFFSET_PERCENT, imageWidth, segmentSize, SEGNUM));
+                new SegmentGraphic(graphicOverlay, imageHeight * BOTTOM_OFFSET_PERCENT, imageWidth, segmentSize, SEGNUM, this));
         graphicOverlay.invalidate(); // Redraw the overlay
         //Log.d(TAG, "drawPose: SegmentGraphics got added: " + graphicOverlay.getChildren().contains(segmentGraphic));
     }
