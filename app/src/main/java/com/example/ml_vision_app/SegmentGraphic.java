@@ -1,13 +1,9 @@
 package com.example.ml_vision_app;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
-import android.util.TypedValue;
 
 public class SegmentGraphic extends GraphicOverlay.Graphic {
     private final Paint segmentLinePaint;
@@ -21,15 +17,14 @@ public class SegmentGraphic extends GraphicOverlay.Graphic {
     static String[] soundNames = {"C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4",
             "A#4", "B4", "C5"}; // A "B" magyarban "H"
 
-    public SegmentGraphic(GraphicOverlay overlay, float yOffset, float imageWidth, float segmentSize,
+    public SegmentGraphic(GraphicOverlay overlay, float yOffset, float segmentSize,
                           int numberOfSegments, Context context) {
         super(overlay);
 
         this.numberOfSegments = numberOfSegments;
         this.segmentSize = segmentSize;
         this.yOffset = yOffset;
-        //this.imageWidth = imageWidth;
-        lineWidth = imageWidth / 3; // 1/3 of total width
+        lineWidth = (float) overlay.getWidth() / 3; // 1/3 of total width
 
         segmentLinePaint = new Paint();
         segmentLinePaint.setColor(Color.BLACK);

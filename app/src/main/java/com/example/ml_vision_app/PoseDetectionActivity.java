@@ -43,7 +43,7 @@ import java.util.concurrent.ExecutionException;
 
 public class PoseDetectionActivity extends AppCompatActivity {
 
-    private static final float BOTTOM_OFFSET_PERCENT = 0.25f;
+    private static final float SHRINK_PERCENT = 0.75f; //the scaled size of the segment
     private PreviewView previewView;
     private GraphicOverlay graphicOverlay;
     private PoseDetector poseDetector;
@@ -154,11 +154,9 @@ public class PoseDetectionActivity extends AppCompatActivity {
         Image mediaImage = imageProxy.getImage();
         if (mediaImage != null) {
             InputImage image = InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
-            imageHeight = image.getHeight();
-            imageWidth = image.getWidth();
             imageHeight = graphicOverlay.getHeight();
             imageWidth = graphicOverlay.getWidth();
-            segmentSize = imageHeight / SEGNUM;
+            segmentSize = (imageHeight / SEGNUM) * SHRINK_PERCENT;
 
             // Process the image for pose detection
             poseDetector.process(image)
@@ -177,7 +175,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
         graphicOverlay.add(
                 new PoseGraphic(graphicOverlay, pose, calibrationOffsetX, calibrationOffsetY));
         graphicOverlay.add(
-                new SegmentGraphic(graphicOverlay, imageHeight * BOTTOM_OFFSET_PERCENT, imageWidth, segmentSize, SEGNUM, this));
+                new SegmentGraphic(graphicOverlay, imageHeight * SHRINK_PERCENT, segmentSize, SEGNUM, this));
         graphicOverlay.invalidate(); // Redraw the overlay
         //Log.d(TAG, "drawPose: SegmentGraphics got added: " + graphicOverlay.getChildren().contains(segmentGraphic));
     }
@@ -201,7 +199,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
         long currentTime = System.currentTimeMillis();
         for (int i = 0; i < SEGNUM; i++) {
             // if finger is inside segment with offset applied
-            if (rightY >= i * segmentSize + BOTTOM_OFFSET_PERCENT * imageHeight && rightY < (i + 1) * segmentSize + BOTTOM_OFFSET_PERCENT * imageHeight) {
+            if (rightY >= i * segmentSize + SHRINK_PERCENT * imageHeight && rightY < (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight) {
                 Log.d(TAG, "checkFingerPositionAndPlaySound: " + "in zone " + i);
                 if (canPlaySound && currentTime - lastSoundPlayedTime >= minSoundDelay) {
                     playNote(SEGNUM - (i + 1)); // Play note for zone
