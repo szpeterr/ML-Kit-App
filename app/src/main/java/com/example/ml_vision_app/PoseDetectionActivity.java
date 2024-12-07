@@ -67,6 +67,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
     private static final int SEGNUM = soundCodes.length; // segment number
     private float segmentSize = 0.0f; // Size of the area accounted for one note. NEEDS AN OFFSET!
     private float inputImageHeight;
+    private float inputImageWidth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,6 +157,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
         if (mediaImage != null) {
             InputImage image = InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
             inputImageHeight = image.getHeight();
+            inputImageWidth = image.getWidth();
             imageHeight = graphicOverlay.getHeight();
             imageWidth = graphicOverlay.getWidth();
             segmentSize = (imageHeight / SEGNUM) * SHRINK_PERCENT;
@@ -175,9 +177,9 @@ public class PoseDetectionActivity extends AppCompatActivity {
     private void drawPose(Pose pose) {
         graphicOverlay.clear();
         graphicOverlay.add(
-                new PoseGraphic(graphicOverlay, pose, calibrationOffsetX, calibrationOffsetY));
+                new PoseGraphic(graphicOverlay, pose, calibrationOffsetX, calibrationOffsetY, inputImageHeight, inputImageWidth));
         graphicOverlay.add(
-                new SegmentGraphic(graphicOverlay, imageHeight * SHRINK_PERCENT, segmentSize, SEGNUM, this));
+                new SegmentGraphic(graphicOverlay, imageHeight * SHRINK_PERCENT, segmentSize, SEGNUM, inputImageHeight, this));
         graphicOverlay.invalidate(); // Redraw the overlay
         //Log.d(TAG, "drawPose: SegmentGraphics got added: " + graphicOverlay.getChildren().contains(segmentGraphic));
     }
@@ -205,8 +207,10 @@ public class PoseDetectionActivity extends AppCompatActivity {
         long currentTime = System.currentTimeMillis();
         for (int i = 0; i < SEGNUM; i++) {
             // if finger is inside segment with offset applied
-            Log.d(TAG, "checkFingerPositionAndPlaySound: i is" + i);
-            if (scaledNoteFingerY >= i * segmentSize + SHRINK_PERCENT * imageHeight && scaledNoteFingerY < (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight) {
+            Log.d(TAG, "checkFingerPositionAndPlaySound: i is " + i);
+            //+ SHRINK_PERCENT * imageHeight
+            //+ SHRINK_PERCENT * imageHeight
+            if ((scaledNoteFingerY >= (i * segmentSize )) && (scaledNoteFingerY < ((i + 1) * segmentSize ))) {
                 Log.d(TAG, "checkFingerPositionAndPlaySound: in zone " + i);
                 if (currentTime - lastSoundPlayedTime >= minSoundDelay) { //canPlaySound &&
                     playNote(SEGNUM - (i + 1)); // Play note for zone
@@ -218,8 +222,10 @@ public class PoseDetectionActivity extends AppCompatActivity {
             }
             Log.d(TAG, "checkFingerPositionAndPlaySound: lower bound is " + i * segmentSize + SHRINK_PERCENT * imageHeight + " and upper bound is " + (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight);
             Log.d(TAG, "checkFingerPositionAndPlaySound: noteFingerY is currently " + scaledNoteFingerY);
-            Log.d(TAG, "checkFingerPositionAndPlaySound: first condition is met: " + (scaledNoteFingerY >= i * segmentSize + SHRINK_PERCENT * imageHeight));
-            Log.d(TAG, "checkFingerPositionAndPlaySound: second condition is met: " + (scaledNoteFingerY < (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight));
+            Log.d(TAG, "checkFingerPositionAndPlaySound: therefore " + scaledNoteFingerY + " is a number larger than " + i * segmentSize + SHRINK_PERCENT * imageHeight + ", " + (scaledNoteFingerY >= i * segmentSize + SHRINK_PERCENT * imageHeight) + " is returned so this is good. ");
+            Log.d(TAG, "checkFingerPositionAndPlaySound: also, " + scaledNoteFingerY + " is a number smaller than " + (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight + ", " + (scaledNoteFingerY < (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight) + " is the returned value so it is also correct.");
+            //Log.d(TAG, "checkFingerPositionAndPlaySound: first condition is met: " + (scaledNoteFingerY >= i * segmentSize + SHRINK_PERCENT * imageHeight));
+            //Log.d(TAG, "checkFingerPositionAndPlaySound: second condition is met: " + (scaledNoteFingerY < (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight));
             Log.d(TAG, "checkFingerPositionAndPlaySound: so the whole condition is: " + ((scaledNoteFingerY >= i * segmentSize + SHRINK_PERCENT * imageHeight) && (scaledNoteFingerY < (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight)));
         }
     }

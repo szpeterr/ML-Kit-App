@@ -15,12 +15,21 @@ public class PoseGraphic extends GraphicOverlay.Graphic {
     private final float offsetX;
     private final float offsetY;
     private static float rightIndexY;
+    private final float inputImageWidth;
+    private final float inputImageHeight;
+    private float overlayWidth;
+    private float overlayHeight;
 
-    public PoseGraphic(GraphicOverlay overlay, Pose pose, float offsetX, float offsetY) {
+    public PoseGraphic(GraphicOverlay overlay, Pose pose, float offsetX, float offsetY, float inputImageHeight, float inputImageWidth) {
         super(overlay);
         this.pose = pose;
         this.offsetX = offsetX;
         this.offsetY = offsetY;
+        this.inputImageHeight = inputImageHeight;
+        this.inputImageWidth = inputImageWidth;
+        overlayWidth = overlay.getWidth();
+        overlayHeight = overlay.getHeight();
+
 
         // Paint for drawing points
         circlePaint = new Paint();
@@ -40,8 +49,10 @@ public class PoseGraphic extends GraphicOverlay.Graphic {
 
         // Draw keypoints as circles, applying the calibration offset to each point
         for (PoseLandmark landmark : pose.getAllPoseLandmarks()) {
-            float x = landmark.getPosition().x + offsetX;
-            float y = landmark.getPosition().y + offsetY;
+            //float x = landmark.getPosition().x + offsetX;
+            //float y = landmark.getPosition().y + offsetY;
+            float x = (landmark.getPosition().x + offsetX) * (overlayWidth / inputImageWidth);
+            float y = (landmark.getPosition().y + offsetY) * (overlayHeight / inputImageHeight);
             canvas.drawCircle(x, y, 8f, circlePaint);
             if (landmark.getLandmarkType() == PoseLandmark.RIGHT_INDEX) {
                 rightIndexY = y;
@@ -71,10 +82,10 @@ public class PoseGraphic extends GraphicOverlay.Graphic {
         if (start != null && end != null) {
             // Draw a line between the two landmarks
             canvas.drawLine(
-                    start.getPosition().x + offsetX,
-                    start.getPosition().y + offsetY,
-                    end.getPosition().x + offsetX,
-                    end.getPosition().y + offsetY,
+                    (start.getPosition().x + offsetX) * (overlayWidth / inputImageWidth),
+                    (start.getPosition().y + offsetY) * (overlayHeight / inputImageHeight),
+                    (end.getPosition().x + offsetX) * (overlayWidth / inputImageWidth),
+                    (end.getPosition().y + offsetY) * (overlayHeight / inputImageHeight),
                     linePaint
             );
         }

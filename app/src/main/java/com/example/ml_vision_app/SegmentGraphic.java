@@ -16,14 +16,16 @@ public class SegmentGraphic extends GraphicOverlay.Graphic {
     private final int textOffset = 0; //offset from the left edge of the screen
     static String[] soundNames = {"C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4",
             "A#4", "B4", "C5"}; // A "B" magyarban "H"
+    private final float inputImageHeight;
 
     public SegmentGraphic(GraphicOverlay overlay, float yOffset, float segmentSize,
-                          int numberOfSegments, Context context) {
+                          int numberOfSegments, float inputImageHeight, Context context) {
         super(overlay);
 
         this.numberOfSegments = numberOfSegments;
         this.segmentSize = segmentSize;
         this.yOffset = yOffset;
+        this.inputImageHeight = inputImageHeight;
         lineWidth = (float) overlay.getWidth() / 3; // 1/3 of total width
 
         segmentLinePaint = new Paint();
