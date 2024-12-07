@@ -66,6 +66,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
     static int[] soundCodes = {60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72};
     private static final int SEGNUM = soundCodes.length; // segment number
     private float segmentSize = 0.0f; // Size of the area accounted for one note. NEEDS AN OFFSET!
+    private float inputImageHeight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,6 +155,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
         Image mediaImage = imageProxy.getImage();
         if (mediaImage != null) {
             InputImage image = InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
+            inputImageHeight = image.getHeight();
             imageHeight = graphicOverlay.getHeight();
             imageWidth = graphicOverlay.getWidth();
             segmentSize = (imageHeight / SEGNUM) * SHRINK_PERCENT;
@@ -181,38 +183,48 @@ public class PoseDetectionActivity extends AppCompatActivity {
     }
 
     private void checkFingerPositionAndPlaySound(Pose pose) {
+        Log.d(TAG, "checkFingerPositionAndPlaySound: CHECK STARTS HERE");
         //float minSpeed = 3.2E-7f; // E = 10^-7
         float minSpeed = 100.0f;
         long minSoundDelay = 600L;
         // Getting index finger positions
         PoseLandmark rightIndexFinger = pose.getPoseLandmark(PoseLandmark.RIGHT_INDEX);
-        if (rightIndexFinger == null) return;
-
-        float rightY = rightIndexFinger.getPosition().y;
-
-        float speed = currentLeftFingerSpeed(pose);
-        if (Math.abs(speed) < minSpeed) {
-            canPlaySound = true;
+        if (rightIndexFinger == null) {
+            Log.d(TAG, "checkFingerPositionAndPlaySound: yepp, the finger is indeed null!");
             return;
         }
-
+        Log.d(TAG, "checkFingerPositionAndPlaySound: at least the finger is not null");
+        float scaledNoteFingerY = graphicOverlay.getHeight() / inputImageHeight * rightIndexFinger.getPosition().y; //RIGHT finger by default
+        float speed = currentFingerSpeed(pose); //LEFT finger by default
+        // reset the sound when speed falls back to normal
+        if (Math.abs(speed) < minSpeed) {
+            canPlaySound = true;
+            Log.d(TAG, "checkFingerPositionAndPlaySound: sound reset");
+            return; //skip this cycle
+        }
         long currentTime = System.currentTimeMillis();
         for (int i = 0; i < SEGNUM; i++) {
             // if finger is inside segment with offset applied
-            if (rightY >= i * segmentSize + SHRINK_PERCENT * imageHeight && rightY < (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight) {
-                Log.d(TAG, "checkFingerPositionAndPlaySound: " + "in zone " + i);
-                if (canPlaySound && currentTime - lastSoundPlayedTime >= minSoundDelay) {
+            Log.d(TAG, "checkFingerPositionAndPlaySound: i is" + i);
+            if (scaledNoteFingerY >= i * segmentSize + SHRINK_PERCENT * imageHeight && scaledNoteFingerY < (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight) {
+                Log.d(TAG, "checkFingerPositionAndPlaySound: in zone " + i);
+                if (currentTime - lastSoundPlayedTime >= minSoundDelay) { //canPlaySound &&
                     playNote(SEGNUM - (i + 1)); // Play note for zone
 
                     lastSoundPlayedTime = currentTime;
                     canPlaySound = false;
-                    Log.d(TAG, "checkFingerPositionAndPlaySound: sound played");
+                    Log.d(TAG, "checkFingerPositionAndPlaySound: YOU SHOULD HAVE HEARD A SOUND");
                 }
             }
+            Log.d(TAG, "checkFingerPositionAndPlaySound: lower bound is " + i * segmentSize + SHRINK_PERCENT * imageHeight + " and upper bound is " + (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight);
+            Log.d(TAG, "checkFingerPositionAndPlaySound: noteFingerY is currently " + scaledNoteFingerY);
+            Log.d(TAG, "checkFingerPositionAndPlaySound: first condition is met: " + (scaledNoteFingerY >= i * segmentSize + SHRINK_PERCENT * imageHeight));
+            Log.d(TAG, "checkFingerPositionAndPlaySound: second condition is met: " + (scaledNoteFingerY < (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight));
+            Log.d(TAG, "checkFingerPositionAndPlaySound: so the whole condition is: " + ((scaledNoteFingerY >= i * segmentSize + SHRINK_PERCENT * imageHeight) && (scaledNoteFingerY < (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight)));
         }
     }
 
-    private float currentLeftFingerSpeed(Pose pose) {
+    private float currentFingerSpeed(Pose pose) {
         PoseLandmark leftIndexFinger = pose.getPoseLandmark(PoseLandmark.LEFT_INDEX);
         if (leftIndexFinger == null) return 0;
 
