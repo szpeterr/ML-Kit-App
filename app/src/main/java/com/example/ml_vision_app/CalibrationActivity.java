@@ -9,8 +9,10 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
@@ -31,6 +33,8 @@ import java.util.concurrent.ExecutionException;
 
 public class CalibrationActivity extends AppCompatActivity {
 
+    private float offsetX;
+    private float offsetY;
     private PreviewView previewView;
     private GraphicOverlay graphicOverlay;
     private PoseDetector poseDetector;
@@ -38,6 +42,12 @@ public class CalibrationActivity extends AppCompatActivity {
     private float[] maxPoint = new float[2]; // X, Y for max point
     private float[] minPoint = new float[2]; // X, Y for min point
     private boolean isMaxCaptured = false;
+
+    private float segmentSize = 0.0f; // Size of the area accounted for one note. NEEDS AN OFFSET!
+    private float inputImageHeight;
+    private float inputImageWidth;
+
+    private boolean calibrationCompleted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,42 +103,66 @@ public class CalibrationActivity extends AppCompatActivity {
         return preview;
     }
 
+    @OptIn(markerClass = ExperimentalGetImage.class)
     private ImageAnalysis createImageAnalysis() {
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), this::analyzeImage);
         return imageAnalysis;
     }
 
+    @ExperimentalGetImage
     private void analyzeImage(@NonNull ImageProxy imageProxy) {
-        @android.annotation.SuppressLint("UnsafeOptInUsageError")
         Image mediaImage = imageProxy.getImage();
         if (mediaImage != null) {
+            inputImageWidth = mediaImage.getWidth();
+            inputImageHeight = mediaImage.getHeight();
+
             InputImage image = InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
             poseDetector.process(image)
-                    .addOnSuccessListener(this::handlePose)
-                    .addOnFailureListener(Throwable::printStackTrace)
+                    .addOnSuccessListener(pose -> handlePose(pose))
+                    .addOnFailureListener(e -> e.printStackTrace())
                     .addOnCompleteListener(task -> imageProxy.close());
         }
     }
 
     private void handlePose(Pose pose) {
-        PoseLandmark cueHand = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST); // Cue hand
-        PoseLandmark targetFinger = pose.getPoseLandmark(PoseLandmark.LEFT_INDEX); // Target hand index finger
+        if (calibrationCompleted) return;
 
-        if (cueHand != null && targetFinger != null) {
-            // Check if cue hand is raised
-            if (cueHand.getPosition().y < graphicOverlay.getHeight() / 4) { // Cue position threshold
-                if (isMaxCaptured) {
-                    // Capture Min Point
-                    minPoint[0] = targetFinger.getPosition().x;
-                    minPoint[1] = targetFinger.getPosition().y;
-                    finishCalibration();
-                } else {
-                    // Capture Max Point
-                    maxPoint[0] = targetFinger.getPosition().x;
-                    maxPoint[1] = targetFinger.getPosition().y;
+        PoseLandmark rightHand = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST); // Cue hand
+        PoseLandmark leftHand = pose.getPoseLandmark(PoseLandmark.LEFT_WRIST); // Target hand
+
+        graphicOverlay.clear();
+
+        if (rightHand != null && leftHand != null) {
+            float cueY = rightHand.getPosition().y;
+            float leftHandX = leftHand.getPosition().x;
+            float leftHandY = leftHand.getPosition().y;
+
+            // Draw the waistline for cue
+            float waistLineY = inputImageHeight * 0.5f; // Example position around waist
+            WaistLineGraphic waistlineGraphic = new WaistLineGraphic(graphicOverlay, 0, inputImageWidth, waistLineY);
+            graphicOverlay.add(waistlineGraphic);
+            graphicOverlay.invalidate();
+
+            // If right hand is below the waistline, process the points
+            if (cueY > waistLineY) {
+                if (!isMaxCaptured) {
+                    maxPoint[0] = leftHandX;
+                    maxPoint[1] = leftHandY;
                     isMaxCaptured = true;
-                    toggleCaptureMode();
+
+                    // Update UI to indicate max point capture
+                    captureButton.setText("Capture Min Point");
+                } else if (leftHandY < maxPoint[1]) { // Ensure min is not greater than max
+                    minPoint[0] = leftHandX;
+                    minPoint[1] = leftHandY;
+                    calibrationCompleted = true;
+
+                    // Send the results back and stop pose processing
+                    finishCalibration();
+
+                    // Update UI to indicate min point capture and stop cue function
+                    captureButton.setText("Calibration Completed");
                 }
             }
         }
