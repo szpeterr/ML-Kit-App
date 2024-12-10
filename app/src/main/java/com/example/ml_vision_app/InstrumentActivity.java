@@ -45,37 +45,17 @@ public class InstrumentActivity extends AppCompatActivity {
         editor.putInt("instrumentId", 0);
         editor.apply();
 
-//        h1Button.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                switch (event.getAction()) {
-//                    case MotionEvent.ACTION_DOWN:
-//                        // Start playing the frequency
-//                        if (!isPlaying) {
-//                            playFrequency();
-//                        }
-//                        return true; // Indicate that the event was handled
-//
-//                    case MotionEvent.ACTION_UP:
-//                    case MotionEvent.ACTION_CANCEL:
-//                        // Stop playing the frequency
-//                        stopFrequency();
-//                        return true; // Indicate that the event was handled
-//                }
-//                return false;
-//            }
-//        });
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(InstrumentActivity.this, MainActivity.class);
-                startActivity(intent);
+                goBack();
             }
         });
         pianoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 saveInstrument(GeneralMidiConstants.ACOUSTIC_GRAND_PIANO);
+                goBack();
             }
         });
 
@@ -83,6 +63,7 @@ public class InstrumentActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 saveInstrument(GeneralMidiConstants.MARIMBA);
+                goBack();
             }
         });
     }
@@ -92,6 +73,10 @@ public class InstrumentActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("instrumentId", newInstrumentId);
         editor.apply();
+    }
+    private void goBack() {
+        Intent intent = new Intent(InstrumentActivity.this, MainActivity.class);
+        startActivity(intent);
     }
 
 //    @Override

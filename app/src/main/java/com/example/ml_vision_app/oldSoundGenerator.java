@@ -4,7 +4,7 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 
-public class SoundGenerator extends PoseDetectionActivity{
+public class oldSoundGenerator extends PoseDetectionActivity{
     private static AudioTrack audioTrack;
     public static boolean isFrequencyPlaying = false;
     private static final int sampleRate = 44100; // Sample rate in Hz

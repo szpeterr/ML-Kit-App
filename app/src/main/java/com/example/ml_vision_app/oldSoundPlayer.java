@@ -7,13 +7,13 @@ import android.media.AudioManager;
 import java.util.HashMap;
 
 //forrás: https://github.com/alantanlc/virtual-piano/blob/master/src/com/alantan/virtualpiano/SoundPoolPlayer.java
-public class SoundPlayer {
+public class oldSoundPlayer {
 
     private SoundPool sp;
     final HashMap pianoNotes = new HashMap();
     int numberOfSounds;
 
-    public SoundPlayer(Context pContext)
+    public oldSoundPlayer(Context pContext)
     {
         // setup Soundpool
         this.sp = new SoundPool(4, AudioManager.STREAM_MUSIC, 0);
