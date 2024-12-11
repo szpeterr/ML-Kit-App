@@ -14,15 +14,28 @@ import com.google.mlkit.vision.face.FaceLandmark;
 public class FaceGraphic extends GraphicOverlay.Graphic {
 
     private final Face face;
+    private float offsetX = 0;
+    private float offsetY = 0;
+    private float overlayWidth;
+    private float overlayHeight;
+    private final float inputImageWidth;
+    private final float inputImageHeight;
     private final Paint facePositionPaint;
     private final Paint landmarkPaint;
     private final Paint boxPaint;
 
     private GraphicOverlay overlay;
 
-    public FaceGraphic(GraphicOverlay overlay, Face face) {
+    public FaceGraphic(GraphicOverlay overlay, Face face, float offsetX, float offsetY, float inputImageHeight, float inputImageWidth) {
         super(overlay);
         this.face = face;
+
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
+        this.inputImageHeight = inputImageHeight;
+        this.inputImageWidth = inputImageWidth;
+        overlayWidth = overlay.getWidth();
+        overlayHeight = overlay.getHeight();
 
         facePositionPaint = new Paint();
         facePositionPaint.setColor(Color.BLUE);

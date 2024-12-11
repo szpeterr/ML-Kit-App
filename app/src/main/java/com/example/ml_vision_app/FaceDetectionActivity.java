@@ -81,7 +81,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
                     .addOnSuccessListener(faces -> {
                         graphicOverlay.clear();
                         for (Face face : faces) {
-                            graphicOverlay.add(new FaceGraphic(graphicOverlay, face));
+                            graphicOverlay.add(new FaceGraphic(graphicOverlay, face, graphicOverlay.getOffsetX(), graphicOverlay.getOffsetY(), graphicOverlay.getImageHeight(), graphicOverlay.getImageWidth()));
                         }
                         graphicOverlay.invalidate();
                     })
