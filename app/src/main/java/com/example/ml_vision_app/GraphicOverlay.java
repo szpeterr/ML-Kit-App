@@ -5,6 +5,8 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.camera.core.CameraSelector;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +23,7 @@ public class GraphicOverlay extends View {
     // Scaling factors
     private float scaleX = 1.0f;
     private float scaleY = 1.0f;
+    private CameraSelector cameraSelector;
 
     public GraphicOverlay(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -84,6 +87,10 @@ public class GraphicOverlay extends View {
         }
     }
 
+    public void setCameraSelector(CameraSelector cameraSelector) {
+        this.cameraSelector = cameraSelector;
+    }
+
     // Base class for a custom graphic that you’ll subclass for specific drawings
     public abstract static class Graphic {
         private final GraphicOverlay overlay;
@@ -94,7 +101,12 @@ public class GraphicOverlay extends View {
 
         // Scale and translate x coordinate
         protected float translateX(float x) {
-            return x * overlay.scaleX + overlay.getOffsetX();
+            if (overlay.getCameraSelector() == CameraSelector.DEFAULT_FRONT_CAMERA) {
+                // Flip horizontally for the front camera
+                return overlay.getWidth() - (x * overlay.getWidth()) + overlay.getOffsetX();
+            } else {
+                return x * overlay.getWidth() + overlay.getOffsetX();
+            }
         }
 
         // Scale and translate y coordinate
@@ -109,6 +121,10 @@ public class GraphicOverlay extends View {
 
         // Abstract method to be implemented for drawing
         public abstract void draw(Canvas canvas);
+    }
+
+    private CameraSelector getCameraSelector() {
+        return cameraSelector;
     }
 }
 

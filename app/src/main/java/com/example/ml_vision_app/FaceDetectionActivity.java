@@ -55,6 +55,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
             try {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
                 cameraProvider.unbindAll();
+                graphicOverlay.setCameraSelector(cameraSelector); // Pass the current camera selector
                 cameraProvider.bindToLifecycle(this, cameraSelector, createPreview(), createImageAnalysis());
             } catch (ExecutionException | InterruptedException e) {
                 e.printStackTrace();

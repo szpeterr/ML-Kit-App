@@ -4,18 +4,20 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 
 public class LineGraphic extends GraphicOverlay.Graphic {
-    private final float startX;
-    private final float startY;
-    private final float endX;
-    private final float endY;
+    private final float start1X;
+    private final float start1Y;
+    private final float end1X;
+    private final float end1Y;
+
+
     private final Paint linePaint;
 
-    public LineGraphic(GraphicOverlay overlay, float startX, float startY, float endX, float endY, int color) {
+    public LineGraphic(GraphicOverlay overlay, float start1X, float start1Y, float end1X, float end1Y, int color) {
         super(overlay);
-        this.startX = startX;
-        this.startY = startY;
-        this.endX = endX;
-        this.endY = endY;
+        this.start1X = start1X;
+        this.start1Y = start1Y;
+        this.end1X = end1X;
+        this.end1Y = end1Y;
 
         linePaint = new Paint();
         linePaint.setColor(color);
@@ -25,7 +27,8 @@ public class LineGraphic extends GraphicOverlay.Graphic {
 
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawLine(translateX(startX), translateY(startY), translateX(endX), translateY(endY), linePaint);
+        canvas.drawLine(translateX(-40), translateY(-40), translateX(40), translateY(40), linePaint);
+        canvas.drawLine(translateX(-60), translateY(-60), translateX(40), translateY(0), linePaint);
     }
 }
 
