@@ -56,9 +56,12 @@ public class PoseDetectionActivity extends AppCompatActivity {
     private float prevIndexFingerX = 0f;
     private float prevIndexFingerY = 0f;
     private long prevFrameTime = 0L;
+    private float minDistance = 50.0f;
+    private static float minSpeed = 50.0f;
     private float imageHeight;
     private float imageWidth;
-    private boolean canPlaySound = true;
+    //private boolean canPlaySound = true;
+    private int convertedVelocity;
     private long lastSoundPlayedTime = 0L;
     private MidiHelper midiHelper;
     //int[] soundRes = {R.raw.a4, R.raw.b4, R.raw.c4, R.raw.d4, R.raw.e4, R.raw.f4, R.raw.g4};
@@ -103,12 +106,15 @@ public class PoseDetectionActivity extends AppCompatActivity {
         }
     }
     private void playNote(int id) {
-        midiHelper.sendMidi(MidiConstants.NOTE_ON, soundCodes[id], 127); // NOTE_ON, note, velocity 127
+        //Log.d(TAG, "playNote: sound volume (velocity) converted by converter is " + );
+        //Log.d(TAG, "playNote: without convert it looks like this: " + velocity);
+        Log.d(TAG, "playNote: the global velocity playNote will use is " + convertedVelocity);
+        midiHelper.sendMidi(MidiConstants.NOTE_ON, soundCodes[id], convertedVelocity); // NOTE_ON, note, velocity 127
         new android.os.Handler().postDelayed(() -> midiHelper.sendMidi(MidiConstants.NOTE_OFF, soundCodes[id], 0), 500); // NOTE_OFF
     }
-    private void drawNoteLabel(int id) {
-
-    }
+//    private void drawNoteLabel(int id) {
+//
+//    }
 
     private void toggleCamera() {
         // Switch between front and back camera
@@ -184,10 +190,20 @@ public class PoseDetectionActivity extends AppCompatActivity {
         //Log.d(TAG, "drawPose: SegmentGraphics got added: " + graphicOverlay.getChildren().contains(segmentGraphic));
     }
 
+//    public static int convertFloatToInt(float input) {
+//        int intValue = (int) input;
+//        return Math.min(intValue, 127);
+//    }
+public static int convertFloatToInt(float input) {
+    //int intValue = (int) (input - minSpeed);
+    int intValue = (int) input;
+    Log.d(TAG, "convertFloatToInt: wunderbar reduced value is " + intValue);
+    return Math.min(intValue, 127);
+}
     private void checkFingerPositionAndPlaySound(Pose pose) {
         Log.d(TAG, "checkFingerPositionAndPlaySound: CHECK STARTS HERE");
         //float minSpeed = 3.2E-7f; // E = 10^-7
-        float minSpeed = 100.0f;
+        float minSpeed = 50.0f;
         long minSoundDelay = 600L;
         // Getting index finger positions
         PoseLandmark rightIndexFinger = pose.getPoseLandmark(PoseLandmark.RIGHT_INDEX);
@@ -197,12 +213,20 @@ public class PoseDetectionActivity extends AppCompatActivity {
         }
         Log.d(TAG, "checkFingerPositionAndPlaySound: at least the finger is not null");
         float scaledNoteFingerY = graphicOverlay.getHeight() / inputImageHeight * rightIndexFinger.getPosition().y; //RIGHT finger by default
+        //THIS IS THE ONLY WORKING speed so far without convert
         float speed = currentFingerSpeed(pose); //LEFT finger by default
+        convertedVelocity = convertFloatToInt(speed);
+        Log.d(TAG, "checkFingerPositionAndPlaySound: just to make sure. Velocity is now: " + convertedVelocity);
+        //Log.d(TAG, "checkFingerPositionAndPlaySound: the smart unrounded value is " + speed);
+        //Log.d(TAG, "checkFingerPositionAndPlaySound: the GPT version of the converter gives this wonderful number: " + convertFloatToInt(speed));
+        //Log.d(TAG, "checkFingerPositionAndPlaySound: the stupid rounded number is no other than " + Math.round(currentFingerSpeed(pose)));
+
         // reset the sound when speed falls back to normal
         if (Math.abs(speed) < minSpeed) {
-            canPlaySound = true;
+            //canPlaySound = true;
+            Log.d(TAG, "checkFingerPositionAndPlaySound: " + "speed from the returner is " + speed);
             Log.d(TAG, "checkFingerPositionAndPlaySound: sound reset");
-            return; //skip this cycle
+            return; // skip this cycle
         }
         long currentTime = System.currentTimeMillis();
         for (int i = 0; i < SEGNUM; i++) {
@@ -213,29 +237,28 @@ public class PoseDetectionActivity extends AppCompatActivity {
             if ((scaledNoteFingerY >= (i * segmentSize )) && (scaledNoteFingerY < ((i + 1) * segmentSize ))) {
                 Log.d(TAG, "checkFingerPositionAndPlaySound: in zone " + i);
                 if (currentTime - lastSoundPlayedTime >= minSoundDelay) { //canPlaySound &&
+                    //int velocity = convertFloatToInt(currentFingerSpeed(pose));
+                    //Log.d(TAG, "checkFingerPositionAndPlaySound: " + "velocity before passing is " + velocity);
+//                    if (velocity > 127) velocity = 127;
                     playNote(SEGNUM - (i + 1)); // Play note for zone
-
                     lastSoundPlayedTime = currentTime;
-                    canPlaySound = false;
+                    //canPlaySound = false;
                     Log.d(TAG, "checkFingerPositionAndPlaySound: YOU SHOULD HAVE HEARD A SOUND");
                 }
             }
-            Log.d(TAG, "checkFingerPositionAndPlaySound: lower bound is " + i * segmentSize + SHRINK_PERCENT * imageHeight + " and upper bound is " + (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight);
-            Log.d(TAG, "checkFingerPositionAndPlaySound: noteFingerY is currently " + scaledNoteFingerY);
-            Log.d(TAG, "checkFingerPositionAndPlaySound: therefore " + scaledNoteFingerY + " is a number larger than " + i * segmentSize + SHRINK_PERCENT * imageHeight + ", " + (scaledNoteFingerY >= i * segmentSize + SHRINK_PERCENT * imageHeight) + " is returned so this is good. ");
-            Log.d(TAG, "checkFingerPositionAndPlaySound: also, " + scaledNoteFingerY + " is a number smaller than " + (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight + ", " + (scaledNoteFingerY < (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight) + " is the returned value so it is also correct.");
-            //Log.d(TAG, "checkFingerPositionAndPlaySound: first condition is met: " + (scaledNoteFingerY >= i * segmentSize + SHRINK_PERCENT * imageHeight));
-            //Log.d(TAG, "checkFingerPositionAndPlaySound: second condition is met: " + (scaledNoteFingerY < (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight));
-            Log.d(TAG, "checkFingerPositionAndPlaySound: so the whole condition is: " + ((scaledNoteFingerY >= i * segmentSize + SHRINK_PERCENT * imageHeight) && (scaledNoteFingerY < (i + 1) * segmentSize + SHRINK_PERCENT * imageHeight)));
         }
     }
 
     private float currentFingerSpeed(Pose pose) {
-        PoseLandmark leftIndexFinger = pose.getPoseLandmark(PoseLandmark.LEFT_INDEX);
-        if (leftIndexFinger == null) return 0;
+        //PoseLandmark leftIndexFinger = pose.getPoseLandmark(PoseLandmark.LEFT_INDEX);
+        PoseLandmark rightIndexFinger = pose.getPoseLandmark(PoseLandmark.RIGHT_INDEX);
+        if (rightIndexFinger == null) {
+            Log.d(TAG, "currentFingerSpeed: " + "yes, finger is indeed null!");
+            return 0;
+        }
 
-        currentIndexFingerX = leftIndexFinger.getPosition().x;
-        currentIndexFingerY = leftIndexFinger.getPosition().y;
+        currentIndexFingerX = rightIndexFinger.getPosition().x;
+        currentIndexFingerY = rightIndexFinger.getPosition().y;
 
         // Get current frame timestamp
         long currentFrameTime = System.currentTimeMillis();
@@ -248,6 +271,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
             prevIndexFingerX = currentIndexFingerX;
             prevIndexFingerY = currentIndexFingerY;
             prevFrameTime = currentFrameTime;
+            Log.d(TAG, "currentFingerSpeed: first frame!");
             return 0;
         }
 
@@ -264,11 +288,13 @@ public class PoseDetectionActivity extends AppCompatActivity {
         prevIndexFingerY = currentIndexFingerY;
         prevFrameTime = currentFrameTime;
 
-        Log.d(TAG, "currentLeftFingerSpeed: " + "speed is " + speed);
-        Log.d(TAG, "currentLeftFingerSpeed: " + "moved distance is " + displacementX);
-
+        //Log.d(TAG, "currentLeftFingerSpeed: " + "speed is " + speed);
+        //Log.d(TAG, "currentLeftFingerSpeed: " + "moved distance is " + displacementX);
+        //if (distance > minDistance) return speed;
+        //return 0;
+        //if (distance < minDistance) return 0;
         //return speed;
-        return distance;
+        return distance; // finger travel distance between two frames
     }
 
     @Override
