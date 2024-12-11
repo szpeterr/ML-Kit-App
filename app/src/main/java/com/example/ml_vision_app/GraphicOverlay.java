@@ -14,6 +14,14 @@ public class GraphicOverlay extends View {
     private float offsetX = 0;
     private float offsetY = 0;
 
+    // Dimensions of the camera preview image
+    private int imageWidth = 0;
+    private int imageHeight = 0;
+
+    // Scaling factors
+    private float scaleX = 1.0f;
+    private float scaleY = 1.0f;
+
     public GraphicOverlay(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
@@ -32,6 +40,28 @@ public class GraphicOverlay extends View {
 
     public float getOffsetY() {
         return offsetY;
+    }
+
+    // Method to set the dimensions of the camera preview and calculate scale factors
+    public void setCameraInfo(int imageWidth, int imageHeight) {
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
+
+        if (imageWidth > 0 && imageHeight > 0) {
+            scaleX = (float) getWidth() / imageWidth;
+            scaleY = (float) getHeight() / imageHeight;
+        }
+
+        invalidate();
+    }
+
+    // Getters for the camera preview dimensions
+    public int getImageWidth() {
+        return imageWidth;
+    }
+
+    public int getImageHeight() {
+        return imageHeight;
     }
 
     // Adds a new graphic to be drawn
@@ -62,19 +92,25 @@ public class GraphicOverlay extends View {
             this.overlay = overlay;
         }
 
-        // Translate x coordinate with scaling and offsets
+        // Scale and translate x coordinate
         protected float translateX(float x) {
-            return x * overlay.getWidth() + overlay.getOffsetX();
+            return x * overlay.scaleX + overlay.getOffsetX();
         }
 
-        // Translate y coordinate with scaling and offsets
+        // Scale and translate y coordinate
         protected float translateY(float y) {
-            return y * overlay.getHeight() + overlay.getOffsetY();
+            return y * overlay.scaleY + overlay.getOffsetY();
+        }
+
+        // Get the overlay object (optional)
+        public GraphicOverlay getOverlay() {
+            return overlay;
         }
 
         // Abstract method to be implemented for drawing
         public abstract void draw(Canvas canvas);
     }
 }
+
 
 
