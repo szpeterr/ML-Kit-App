@@ -86,6 +86,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
         previewView = findViewById(R.id.camera_preview);
         graphicOverlay = findViewById(R.id.graphic_overlay);
         //private boolean isPlaying = false;
+
         ImageButton switchCameraButton = findViewById(R.id.switch_camera_button);
 
 
