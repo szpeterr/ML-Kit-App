@@ -38,6 +38,8 @@ import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 import org.billthefarmer.mididriver.MidiConstants;
 
 //import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 
 
@@ -61,6 +63,7 @@ public class PoseDetectionActivity extends AppCompatActivity {
     private float imageHeight;
     private float imageWidth;
     //private boolean canPlaySound = true;
+    private int rawVelocity;
     private int convertedVelocity;
     private long lastSoundPlayedTime = 0L;
     private MidiHelper midiHelper;
@@ -110,7 +113,8 @@ public class PoseDetectionActivity extends AppCompatActivity {
         //Log.d(TAG, "playNote: without convert it looks like this: " + velocity);
         Log.d(TAG, "playNote: the global velocity playNote will use is " + convertedVelocity);
         midiHelper.sendMidi(MidiConstants.NOTE_ON, soundCodes[id], convertedVelocity); // NOTE_ON, note, velocity 127
-        new android.os.Handler().postDelayed(() -> midiHelper.sendMidi(MidiConstants.NOTE_OFF, soundCodes[id], 0), 500); // NOTE_OFF
+        long noteTimeMultiplier = 2L;
+        new android.os.Handler().postDelayed(() -> midiHelper.sendMidi(MidiConstants.NOTE_OFF, soundCodes[id], 0), rawVelocity * noteTimeMultiplier); // NOTE_OFF
     }
 //    private void drawNoteLabel(int id) {
 //
@@ -155,6 +159,9 @@ public class PoseDetectionActivity extends AppCompatActivity {
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), this::analyzeImage);
         return imageAnalysis;
     }
+    // Create buffer
+    private Queue<Pose> frameBuffer = new LinkedList<>();
+    private int frameCounter = 0;
 
     // Analyze each frame for pose detection
     private void analyzeImage(@NonNull ImageProxy imageProxy) {
@@ -171,6 +178,16 @@ public class PoseDetectionActivity extends AppCompatActivity {
             // Process the image for pose detection
             poseDetector.process(image)
                     .addOnSuccessListener(pose -> {
+
+                        // Buffer logic
+                        frameCounter++;
+                        if (frameCounter % 4 == 0) {
+                            frameBuffer.offer(pose); // Add frame to buffer
+                            if (frameBuffer.size() > 4) {
+                                frameBuffer.poll(); // Remove oldest frame
+                            }
+                        }
+
                         drawPose(pose); // Draw the skeleton overlay
                         checkFingerPositionAndPlaySound(pose); // Check finger position and play sound
                     })
@@ -215,6 +232,7 @@ public static int convertFloatToInt(float input) {
         float scaledNoteFingerY = graphicOverlay.getHeight() / inputImageHeight * rightIndexFinger.getPosition().y; //RIGHT finger by default
         //THIS IS THE ONLY WORKING speed so far without convert
         float speed = currentFingerSpeed(pose); //LEFT finger by default
+        Log.d(TAG, "checkFingerPositionAndPlaySound: speed before convert is " + speed);
         convertedVelocity = convertFloatToInt(speed);
         Log.d(TAG, "checkFingerPositionAndPlaySound: just to make sure. Velocity is now: " + convertedVelocity);
         //Log.d(TAG, "checkFingerPositionAndPlaySound: the smart unrounded value is " + speed);
@@ -257,6 +275,15 @@ public static int convertFloatToInt(float input) {
             return 0;
         }
 
+        // Buffer logic starts -
+        if (frameBuffer.size() < 4) {
+            return 0; // Not enough frames in buffer
+        }
+
+        Pose latestFrame = frameBuffer.peek(); // Latest frame
+        Pose thirdToLastFrame = (Pose) frameBuffer.toArray()[frameBuffer.size() - 4]; // 3rd-to-last frame
+        // Buffer logic ends -
+
         currentIndexFingerX = rightIndexFinger.getPosition().x;
         currentIndexFingerY = rightIndexFinger.getPosition().y;
 
@@ -284,9 +311,11 @@ public static int convertFloatToInt(float input) {
         float speed = distance / deltaTime;
 
         // Update previous position and timestamp
-        prevIndexFingerX = currentIndexFingerX;
-        prevIndexFingerY = currentIndexFingerY;
-        prevFrameTime = currentFrameTime;
+        //if (deltaTime % 4 == 0) {
+            prevIndexFingerX = currentIndexFingerX;
+            prevIndexFingerY = currentIndexFingerY;
+            prevFrameTime = currentFrameTime;
+        //}
 
         //Log.d(TAG, "currentLeftFingerSpeed: " + "speed is " + speed);
         //Log.d(TAG, "currentLeftFingerSpeed: " + "moved distance is " + displacementX);
@@ -294,6 +323,7 @@ public static int convertFloatToInt(float input) {
         //return 0;
         //if (distance < minDistance) return 0;
         //return speed;
+        rawVelocity = Math.round(distance);
         return distance; // finger travel distance between two frames
     }
 

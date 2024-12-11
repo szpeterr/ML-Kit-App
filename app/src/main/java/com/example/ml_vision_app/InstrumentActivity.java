@@ -23,6 +23,7 @@ public class InstrumentActivity extends AppCompatActivity {
     Button marimbaButton;
     Button backButton;
     //public static int activeInstrument;
+    Button rockOrgan;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -39,6 +40,7 @@ public class InstrumentActivity extends AppCompatActivity {
         pianoButton = findViewById(R.id.Piano);
         marimbaButton = findViewById(R.id.Marimba);
         backButton = findViewById(R.id.backButton);
+        rockOrgan = findViewById(R.id.rockOrgan);
 
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -63,6 +65,14 @@ public class InstrumentActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 saveInstrument(GeneralMidiConstants.MARIMBA);
+                goBack();
+            }
+        });
+
+        rockOrgan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveInstrument(GeneralMidiConstants.ROCK_ORGAN);
                 goBack();
             }
         });
