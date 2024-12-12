@@ -90,7 +90,7 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
     // Scales the given value from image pixels to overlay pixels
     protected float scale(float imagePixel) {
         float overlayWidth = getOverlay().getWidth();
-        float imageWidth = getOverlay().getImageWidth(); // Replace this with actual logic to get image width
+        float imageWidth = getOverlay().getImageWidth();
         return imagePixel * overlayWidth / imageWidth;
     }
 }
